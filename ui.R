@@ -168,6 +168,7 @@ ui <- tagList(dashboardPage(
   ), #dashboard menu closer
   
   dashboardBody(
+    
     customTheme,
     shinyjs::useShinyjs(),
     
@@ -176,10 +177,10 @@ ui <- tagList(dashboardPage(
         shinyjs::hidden(div(id = "race_wrapper", 
                           shinydashboard::box(
                             width = NULL,
+                            #height = "40em",
                             title = p("Race/Ethnicity", style = 'font-size:24px;'),
                             status = "primary",
-                            div(style = "overflow-x: scroll",
-                                DTOutput("race_table"))
+                            div(echarts4rOutput('race_pie'),width ="100%")
                           ))
       )),
       
@@ -187,6 +188,7 @@ ui <- tagList(dashboardPage(
              shinyjs::hidden(div(id = "hhchar_wrapper", 
                                  shinydashboard::box(
                                    width = NULL,
+                                   #height = "40em",
                                    title = p("Household Characteristics", style = 'font-size:24px;'),
                                    status = "primary",
                                    div(style = "overflow-x: scroll",
@@ -197,6 +199,40 @@ ui <- tagList(dashboardPage(
       
       
       ), #fluid row closer 
+    
+    fluidRow(
+      column(4,
+             
+             fluidRow(
+               shinyjs::hidden(div(id = "med_inc_box_wrapper",
+                                  
+                                     valueBoxOutput("med_income_box", width = 12)
+                                   
+               ))
+               ), #fluid row closer
+             
+             fluidRow(
+               shinyjs::hidden(div(id = "avg_inc_box_wrapper",
+                                 
+                                     valueBoxOutput("avg_income_box", width = 12)
+                                   
+                                   
+               ))
+             )#fluid row closer
+             
+      ),#column closer
+      
+      column(8,
+             shinyjs::hidden(div(id = "income_band_wrapper", 
+                                 shinydashboard::box(
+                                   width = NULL,
+                                   title = p("Breakdown of Households by Income Bands", style = 'font-size:24px;'),
+                                   status = "primary",
+                                   div(echarts4rOutput('income_band_table'),width ="100%")
+                                 ))
+             ))
+      
+    ), #fluid row closer
     
   )#dashboard body
   )#dashboard page
