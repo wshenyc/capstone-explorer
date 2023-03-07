@@ -1,21 +1,14 @@
 library(tidycensus)
 library(tidyverse)
 
-#Purpose: Pre-process ACS 2017-2021 data for race & ethnicity, median household income,
-#household characteristics 
+"%notin%" <- Negate("%in%")
 
-#figure out how to put this into a secret
+#Purpose: Pre-process ACS 2017-2021 data for race & ethnicity, median household income,
+
 #census_api_key("0cb3ea8ea0c4a8cdd2bdbb55582d9c1e400093bc", install = T)
 
-#testing census call
 
-#selecting some tables: household income & renter/homeowner breakdown & race/ethnicity
-#building a profile 
-
-#feb 22, 2023 
-#we're going to pre-load these tables 
-#helper functions will just work to 
-
+####Median Household Income#####
 
 vars <- load_variables(
   2021,
@@ -30,15 +23,11 @@ vars_medinc <- vars %>%
   mutate(extra = ifelse(is.na(extra), desc, extra)) %>% 
   select(name, extra)
 
-# vars_medinc$label[vars_medinc$name == "S1901_C01_001"] <- "Total Number of Households"
-# vars_medinc$label[vars_medinc$name == "S1901_C01_012"] <- "Median Household Income"
-# vars_medinc$label[vars_medinc$name == "S1901_C01_013"] <- "Mean Household Income"
-
 
 income_table <- get_acs(
   geography = "zcta",
   table = "S1901", #median household income 
-  year = 2021
+  year = 2021 #2017-2021 is the most recent 5-year ACS, I'm not crazy lol 
 )
 
 income_bands_full <- income_table %>% 
@@ -52,7 +41,9 @@ income_bands_full <- income_table %>%
   select(GEOID, extra, estimate) %>% 
   rename(Label = extra,
          Estimate = estimate,
-         Zipcode = GEOID)
+         Zipcode = GEOID) %>% 
+  groupby(Zipcode) %>% 
+  
 
 #writing to csv 
 #income_bands_full %>% write_csv("acs_income_bands_2017_2021.csv")
@@ -69,38 +60,81 @@ med_mean_income <- income_table %>%
 
 #med_mean_income %>% write_csv("med_mean_income_acs_2017_2021.csv")
 
-#testing
-# med_mean_income_small <- med_mean_income %>% 
-#   filter(Zipcode == "10026")
+
+####household income by race/ethnicity####
+#this is going to take more time than I anticipated lol
+
+vars_inc_rr <- load_variables(
+  2021,
+  dataset = c("acs5")
+)
+
+inc_rr_b <- get_acs(
+  geography = "zcta",
+  table = "B19001B", #household income by race/ethnicity
+  year = 2021 
+)
+
+inc_rr_b_formatted <- inc_rr_b %>% 
+  select(GEOID, estimate) %>% 
+  rename(Zipcode = GEOID,
+         estimate_black = estimate) 
+
+# inc_rr_b_labelled <- inc_rr %>% 
+#   left_join(vars_inc_rr, by = c("variable"="name"))
+
+inc_rr_d <- get_acs(
+  geography = "zcta",
+  table = "B19001D", #household income by race/ethnicity
+  year = 2021 
+)
+
+inc_rr_d_formatted <- inc_rr_d %>% 
+  select(GEOID, estimate) %>% 
+  rename(Zipcode = GEOID,
+         estimate_asian = estimate) 
+
+inc_rr_h <- get_acs(
+  geography = "zcta",
+  table = "B19001H", #household income by race/ethnicity
+  year = 2021 
+)
+
+inc_rr_h_formatted <- inc_rr_h %>% 
+  select(GEOID, estimate) %>% 
+  rename(Zipcode = GEOID,
+         estimate_white = estimate)
+
+inc_rr_i <- get_acs(
+  geography = "zcta",
+  table = "B19001I", #household income by race/ethnicity
+  year = 2021 
+)
+
+inc_rr_i_formatted <- inc_rr_i %>% 
+  select(GEOID, estimate) %>% 
+  rename(Zipcode = GEOID,
+         estimate_his = estimate) 
+
+master_inc_race <- inc_rr_b_formatted %>% 
+  left_join(inc_rr_d_formatted, by = "Zipcode") %>% 
+  left_join(inc_rr_h_formatted, by = "Zipcode") %>% 
+  left_join(inc_rr_i_formatted, by = "Zipcode")
 
 
-#this is for the small versions
-income_table_small <- income_table %>% 
-  filter(GEOID == 10026) %>% #user input
-  head(13) %>% 
-  left_join(vars_medinc, by = c("variable"="name")) %>% 
-  select(extra, estimate) %>% 
-  rename(Label = extra,
-         Estimate = estimate)
+# B black alone
+## C American Indian and Alaska Native alone
+# D asian alone
+## E native hawaiian and other pacific islander
+## F some other race alone
+## G two or more races 
+# H white alone, not hispanic or latino
+# I hispanic or latino 
 
-#I think I want a bar graph showing this 
 
-inc_chart <- income_table_small[2:11,] %>% #just selecting the income bands
-  e_charts(Label) %>% 
-  e_bar(
-    Estimate
-  ) %>% 
-  e_tooltip() 
 
-table_inc <- income_table_small[c(12,13),] %>% 
-  mutate(Estimate =  format(round(as.numeric(Estimate), 1), big.mark=","))
 
-datatable(table_inc,
-          options = list(
-            dom = 't'
-          ))
-
-#household characteristics
+####household characteristics####
 vars_dp  <- load_variables(
   2021, 
   dataset = "acs5/profile"
@@ -129,7 +163,23 @@ hh_char_formatted <- hh_char_labelled %>%
   mutate(desc = if_else(is.na(desc), subcat, desc),
          #estimate =  format(round(as.numeric(estimate), 1), big.mark=",")
   ) %>% 
-  select(GEOID, desc, category, estimate) %>%
+  group_by(GEOID, category) %>% 
+  mutate(id = row_number(),
+    Percentage = case_when(desc %notin% c("Total housing units",
+                                               "Homeowner vacancy rate",
+                                               "Rental vacancy rate",
+                                               "Average household size of owner-occupied unit",
+                                               "Average household size of renter-occupied unit",
+                                               "Owner-occupied units",
+                                               "Median (dollars)",
+                                               "Housing units with a mortgage (excluding units where SMOCAPI cannot be computed)",
+                                               "Housing unit without a mortgage (excluding units where SMOCAPI cannot be computed)",
+                                               "Occupied units paying rent",
+                                               "Occupied units paying rent (excluding units where GRAPI cannot be computed)") ~ 
+                                  round(100 * (estimate/estimate[id == 1]),1) 
+         )) %>% 
+  ungroup() %>% 
+  select(GEOID, desc, category, estimate, Percentage) %>%
   rename(Zipcode = GEOID,
          Label = desc,
          Estimate=estimate) 
@@ -138,37 +188,39 @@ hh_char_formatted <- hh_char_labelled %>%
 
 ####Race and Ethnicity####
 
-vars_race  <- load_variables(
-  2021, #this would be the other thing to make into user input
-  dataset = "acs5"
+vars_race <- load_variables(
+  2021,
+  dataset = c("acs5")
 )
-
-
-vars_race <- vars_race %>% 
-  filter(grepl("B02001",name)) #race
 
 race_table <- get_acs(
   geography = "zcta",
-  table = "B02001", #selected housing characteristics 
+  table = "B03002", #hispanic or latino origin by race
   year = 2021 
 )
 
+
 race_table_labelled <- race_table %>% 
   left_join(vars_race , by =c("variable"="name")) %>% 
+  filter(label %in% c("Estimate!!Total:!!Hispanic or Latino:",
+                      "Estimate!!Total:!!Not Hispanic or Latino:!!American Indian and Alaska Native alone",
+                      "Estimate!!Total:!!Not Hispanic or Latino:!!White alone",
+                      "Estimate!!Total:!!Not Hispanic or Latino:!!Asian alone",
+                      "Estimate!!Total:!!Not Hispanic or Latino:!!Black or African American alone",
+                      "Estimate!!Total:!!Not Hispanic or Latino:!!Native Hawaiian and Other Pacific Islander alone",
+                      "Estimate!!Total:!!Not Hispanic or Latino:!!Some other race alone",
+                      "Estimate!!Total:!!Not Hispanic or Latino:!!Two or more races:")) %>% 
   separate(label, c("drop","category","subcat","desc"), "!!") %>% #breaks up by !!
-  mutate(subcat = ifelse(is.na(subcat), "Total", subcat), 
-         desc = if_else(is.na(desc), subcat, desc),
+  mutate(desc = ifelse(is.na(desc), subcat, desc),
          Estimate =  format(round(as.numeric(estimate), 1), big.mark=","),
          Label = desc,
-         # category = c("Total Population",
-         #              "One Race Alone","One Race Alone","One Race Alone",
-         #              "One Race Alone","One Race Alone","One Race Alone",
-         #              "Two or More Races","Two or More Races","Two or More Races"),
          Zipcode = GEOID,
-         category = case_when(grepl("alone", Label) ~ "One Race Alone",
-                              grepl("Total", Label) ~ "Total Population",
-                              grepl("Two", Label) ~ "Two or More Races")) %>% 
-  select(Zipcode, Label, category, Estimate)
+         Label = gsub(':', '', Label)) %>% 
+  group_by(Zipcode) %>%
+  mutate(Percentage = round(100 * (estimate / sum(estimate)),1)) %>%
+  ungroup() %>% 
+  select(Zipcode, Label, Estimate, Percentage)
+  
 
-#  race_table_labelled %>% write_csv("race_table_acs_2017_2021.csv")
+race_table_labelled %>% write_csv("race_table_acs_2017_2021.csv")
 

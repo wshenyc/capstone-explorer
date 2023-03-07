@@ -42,14 +42,16 @@ zip_select <- function(df, x) {
 
 ####Household Characteristics#### 
 
-hhchar_table_gen <- function(df, user_zip) {
-  x <- zip_select(df, user_zip)
+
+hhchar_table_gen <- function(df, user_zip, cat) {
+  x <- zip_select(df, user_zip) %>% 
+    filter(category == cat)
   
   DT::renderDT(
-  datatable(x, 
-            extensions = 'RowGroup', 
+  datatable(x,
+            extensions = 'RowGroup',
             options = list(
-              dom = 'ftp',
+              dom = 'tp',
               pageLength = 5,
               rowGroup = list(dataSrc=c(2)),
                            columnDefs = list(list(visible=FALSE, targets=c(2))))
@@ -62,19 +64,25 @@ hhchar_table_gen <- function(df, user_zip) {
 ####Race and Ethnicity####
 
 race_table_gen <- function(df, user_zip) {
-  x <- zip_select(df, user_zip) %>% 
-    filter(!grepl("excluding", Label)) %>% 
-    filter(!grepl("including", Label)) %>% 
-    filter(!grepl("Total", Label)) %>% 
-    mutate(Label = if_else(Label == "Two or more races:", "Two or more races", Label))
+  x <- zip_select(df, user_zip)
   
   plot <- x %>% 
     e_charts(Label,
              height = '600px') %>% 
     e_pie(Estimate) %>% 
-    e_tooltip() %>% 
+    e_tooltip(
+      formatter = htmlwidgets::JS("
+      function(params){
+       return(params.name + ': ' + params.value +  '<br />' +
+       params.value[2] + '%'
+       )
+      }
+    ")
+    )%>%  
     e_legend(show=FALSE)
  
+ 
+  
   
   renderEcharts4r({
     plot
