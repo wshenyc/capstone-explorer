@@ -74,15 +74,13 @@ race_table_gen <- function(df, user_zip) {
       formatter = htmlwidgets::JS("
       function(params){
        return(params.name + ': ' + params.value +  '<br />' +
-       params.value[2] + '%'
+      'Percentage: ' +  params.percent + '%'
        )
       }
     ")
     )%>%  
     e_legend(show=FALSE)
- 
- 
-  
+
   
   renderEcharts4r({
     plot
@@ -115,9 +113,7 @@ income_table_gen <- function(df, user_zip) {
 
 }
 
-
-
-
+####Median Income####
 income_med_gen <- function(df, user_zip) {
   x <- zip_select(df, user_zip) %>% 
     filter(!grepl("Total",Label))
@@ -131,6 +127,7 @@ income_med_gen <- function(df, user_zip) {
   
 }
 
+#####Avg Income####
 income_avg_gen <- function(df, user_zip) {
   x <- zip_select(df, user_zip) %>% 
     filter(!grepl("Total",Label))
@@ -144,3 +141,41 @@ income_avg_gen <- function(df, user_zip) {
    
 }
 
+
+####Home value trends####
+val_table_gen <- function(df, user_zip) {
+  x <- df %>% 
+    filter(RegionName == user_zip) %>% 
+    select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
+    pivot_longer(cols = starts_with("20"),
+                 names_to = "date",
+                 values_to = "Value") 
+  
+  plot <- x %>% 
+    e_charts(date) %>% 
+    e_line(Value) %>% 
+    e_datazoom(type = "slider") %>% 
+    e_tooltip() %>% 
+    e_legend(FALSE) %>% 
+    e_title(text = "Typical Home Values from Jan 2000 - Jan 2023",
+            subtext = "Source: Zillow Home Value Index") 
+  
+  renderEcharts4r({
+    plot
+  })
+}
+
+####home value growth####
+date_growth <- function(df, user_zip, date_val) {
+  x <- df %>% 
+    filter(RegionName == user_zip) %>% 
+    select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
+    pivot_longer(cols = starts_with("20"),
+                 names_to = "date",
+                 values_to = "Growth") 
+  
+  value <- x %>% 
+    filter(grepl(date_val, date))
+  
+ date_value <- value$Growth 
+}

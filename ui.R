@@ -50,19 +50,24 @@ customTheme <- dashboardthemes::shinyDashboardThemeDIY(
   
   #header
   ,
-  logoBackColor = "rgba(19,156,202,255)"
+  #logoBackColor = "rgba(19,156,202,255)"
+  logoBackColor = "#004e66"
   
   ,
-  headerButtonBackColor = "rgba(19,156,202,255)"
+  #headerButtonBackColor = "rgba(19,156,202,255)"
+  headerButtonBackColor = "#024357"
   ,
-  headerButtonIconColor = "rgb(75,75,75)"
+  headerButtonIconColor = "rgb(255,255,255)"
+  #headerButtonIconColor = "#4B4F54"
   ,
   headerButtonBackColorHover = "rgba(18, 140, 183, 1)"
+  
   ,
   headerButtonIconColorHover = "rgb(0,0,0)"
   
   ,
-  headerBackColor = "rgba(19,156,202,255)"
+  #headerBackColor = "rgba(19,156,202,255)"
+  headerBackColor = "#004e66"
   ,
   headerBoxShadowColor = "#aaaaaa"
   ,
@@ -153,6 +158,7 @@ customTheme <- dashboardthemes::shinyDashboardThemeDIY(
   
   ,
   tabBoxTabColor = "rgb(255,255,255)"
+  #tabBoxTabColor = "#009ECC"
   ,
   tabBoxTabTextSize = 12
   ,
@@ -162,7 +168,7 @@ customTheme <- dashboardthemes::shinyDashboardThemeDIY(
   ,
   tabBoxBackColor = "rgb(255,255,255)"
   ,
-  tabBoxHighlightColor = "rgba(44,222,235,1)"
+  tabBoxHighlightColor = "#009ECC"
   ,
   tabBoxBorderRadius = 5
   
@@ -208,52 +214,77 @@ customTheme <- dashboardthemes::shinyDashboardThemeDIY(
 
 ####sidebar####
 sidebar <- dashboardSidebar(
-      sidebarMenu(
-        id = "tabs",
-        menuItem(
-          "Real Estate Market",
-          tabName = "census_search",
-          icon = icon("building"),
-          menuSubItem(icon = NULL,
-                      textInput("zip_entry",
-                                "Enter Zipcode for Census Search")),
-          menuSubItem(icon = NULL,
-                      tabName = "census_sub_tab",
-                      actionButton("zip_search_button", "Census Search"))
-        ),
-        menuItem(
-          "Subsidy Environment",
-          tabName = "subsidy_search",
-          icon = icon("money-bill")
-        ),
-        menuItem(
-          "Political Support",
-          tabName = "political_search",
-          icon = icon("landmark")
-        ),
-        menuItem(
-          "Land Use and Zoning",
-          tabName = "zoning_search",
-          icon = icon("landmark")
-        ),
-        menuItem(
-          "Existing Donor Support",
-          tabName = "donor_search",
-          icon = icon("money-bill")
-        ),
-        menuItem(
-          "Target Buyer Interest",
-          tabName = "buyer_search",
-          icon = icon("money-bill")
-        ),
-        menuItem(
-          "Environmental Risk",
-          tabName = "enviro_search",
-          icon = icon("seedling")
-        )
-      ) #sidebar menu closer
-    ) #dashboard sidebar closer
-  
+  sidebarMenu(
+    id = "tabs",
+    menuItem(
+      "Real Estate Market",
+      tabName = "census_search",
+      icon = icon("building"),
+      menuSubItem(icon = NULL,
+                  textInput("zip_entry",
+                            "Enter a U.S. Zipcode")),
+      menuSubItem(icon = NULL,
+                  tabName = "census_sub_tab",
+                  actionButton("zip_search_button", "Census Search")),
+      
+      menuSubItem(icon = NULL,
+                  tabName = "market_tab",
+                  actionButton("market_search_button", "Home Value Search"))
+      
+    ),
+    
+    # menuItem(
+    #   "Subsidy Environment",
+    #   tabName = "subsidy_search",
+    #   icon = icon("money-bill")
+    # ),
+    
+    menuItem(
+      "Political Support",
+      tabName = "political_search",
+      icon = icon("landmark"),
+      
+      menuSubItem("Electeds Look Up",
+                  icon = icon("check-double"),
+                  tabName="pol_lookup_tab")
+    ), 
+    
+    # menuItem(
+    #   "Land Use and Zoning",
+    #   tabName = "zoning_search",
+    #   icon = icon("landmark")
+    # ),
+    
+    menuItem(
+      "Organizational Capacity",
+      tabName = "org_search",
+      icon = icon("users")
+    ),
+    
+    # menuItem(
+    #   "Target Buyer Interest",
+    #   tabName = "buyer_search",
+    #   icon = icon("money-bill")
+    # ),
+    
+    menuItem(
+      "Environmental Risk",
+      tabName = "enviro_search",
+      icon = icon("seedling"),
+      
+      menuSubItem("Climate Change Risks",
+                  icon = icon("seedling"),
+                  tabName = "enviro_risk_tab"),
+      
+      menuSubItem("Social Vulnerability Index",
+                  icon = icon("seedling"),
+                  tabName = "svi_tab")
+      
+      
+    )
+  ) #sidebar menu closer
+) #dashboard sidebar closer
+
 ####body####
 body <- dashboardBody(
   customTheme,
@@ -292,11 +323,11 @@ body <- dashboardBody(
                                             tabPanel("Gross Rent", DTOutput("gross_rent_table")),
                                             tabPanel("GRAPI", DTOutput("grapi_table")),
                                             tabPanel("SMOCAPI", DTOutput("smocapi_table")),
-                                            tabPanel("Owner-Occupied Home Value", DTOutput("value_table")),
+                                            tabPanel("Owner-Occupied Home Value", DTOutput("value_table"))
                                           )
                                         )
-                                      )), ),
-                      #fluid row closer
+                                      ))
+                               ),#fluid row closer
 
                       fluidRow(column(
                         4,
@@ -332,8 +363,53 @@ body <- dashboardBody(
 
                    ), #tab item closer
 
+    tabItem(tabName = "market_tab",
+            fluidRow(
+              column(12,
+                     shinyjs::hidden(
+                     div(
+                       id = "market_wrapper",
+                       shinydashboard::box(
+                         width = NULL,
+                         title = "Zillow - Market Trends",
+                         status = "primary",
+                         div(echarts4rOutput('home_val_table'), width =
+                               "100%")
+                       )
+                     )
+                     )#shinyjs
+              )
+            ),#fluidrow closer
+            fluidRow(
+              column(4,
+                     shinyjs::hidden(
+                       div(
+                         id = "first_date_wrapper",
+                         valueBoxOutput("first_date_box", width = 12)
+                       )
+                     )),
+              
+              column(4,
+                     shinyjs::hidden(
+                       div(
+                         id = "second_date_wrapper",
+                         valueBoxOutput("second_date_box", width = 12)
+                       )
+                     )),
+              
+              column(4,
+                     shinyjs::hidden(
+                       div(
+                         id = "third_date_wrapper",
+                         valueBoxOutput("third_date_box", width = 12)
+                       )
+                     ))
+            )
+            
+    ),#tabitem closer
+
     
-    tabItem(tabName = "political_search",
+    tabItem(tabName = "pol_lookup_tab",
             fluidRow(
               column(12,
                      #shinyjs::hidden(
@@ -357,8 +433,32 @@ body <- dashboardBody(
       
     ),#tabitem closer
     
+    tabItem(tabName = "org_search",
+            fluidRow(
+              column(12,
+                     #shinyjs::hidden(
+                     div(
+                       id = "irs_look_up",
+                       shinydashboard::box(
+                         width = NULL,
+                         title = "IRS 990 Look Up",
+                         status = "primary",
+                         div(
+                           tags$iframe(
+                             src = "https://apps.irs.gov/app/eos/",
+                             height = "800px", width = "100%"
+                           )
+                         )
+                       )
+                     )
+                     #)#shinyjs
+              )
+            )#fluidrow closer
+            
+    ),#tabitem closer
+    
     tabItem(
-      tabName = "enviro_search",
+      tabName = "enviro_risk_tab",
       fluidRow(
         column(12,
                #shinyjs::hidden(
@@ -366,7 +466,7 @@ body <- dashboardBody(
                  id = "enviro_risk_look_up",
                  shinydashboard::box(
                    width = NULL,
-                   title = "Environmental Risks",
+                   title = "Climate Change Risks",
                    status = "primary",
                    div(
                      tags$iframe(
@@ -378,6 +478,30 @@ body <- dashboardBody(
                )
         )
       )#fluidrow closer
+    ),#tabitem closer
+    
+    tabItem(tabName = "svi_tab",
+            fluidRow(
+              column(12,
+                     #shinyjs::hidden(
+                     div(
+                       id = "svi_lookup",
+                       shinydashboard::box(
+                         width = NULL,
+                         title = "CDC Social Vulnerability Index",
+                         status = "primary",
+                         div(
+                           tags$iframe(
+                             src = "https://www.atsdr.cdc.gov/placeandhealth/svi/interactive_map.html",
+                             height = "800px", width = "100%"
+                           )
+                         )
+                       )
+                     )
+                     #)#shinyjs
+              )
+            )#fluidrow closer
+            
     )#tabitem closer
 
                   )#tab items closer
@@ -386,7 +510,9 @@ body <- dashboardBody(
 #dashboard page
 dashboardPage(
   title = "Capstone Demo",
-  header = dashboardHeader(title = customLogo),
+  header = dashboardHeader(title = tags$a(href="https://groundedsolutions.org/",
+                                          tags$img(src='https://groundedsolutions.org/themes/custom/groundwork/patternlab/public/images/grounded-solutions-network-logo-white.svg',
+                                                   height = '40px'))),
   sidebar,
   body
 )

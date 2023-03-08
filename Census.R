@@ -157,17 +157,21 @@ hh_char_labelled <- hh_char %>%
               grepl("GROSS RENT AS A PERCENTAGE", label))
   )
 
+
 hh_char_formatted <- hh_char_labelled %>% 
   select(GEOID, variable, estimate, label) %>% 
   separate(label, c("drop","category","subcat","desc"), "!!") %>% #breaks up by !!
   mutate(desc = if_else(is.na(desc), subcat, desc),
-         #estimate =  format(round(as.numeric(estimate), 1), big.mark=",")
-  ) %>% 
-  group_by(GEOID, category) %>% 
-  mutate(id = row_number(),
+         temp_sort = case_when(paste(category, subcat) == "SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) Housing units with a mortgage (excluding units where SMOCAPI cannot be computed)" ~
+                             "SMOCAPI with",
+                             paste(category, subcat) == "SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI) Housing units without a mortgage (excluding units where SMOCAPI cannot be computed)" ~
+                               "SMOCAPI without",
+                             !grepl("SMOCAPI", subcat) ~ category)) %>% 
+  group_by(GEOID, temp_sort) %>% 
+  mutate(total_val = first(estimate),
     Percentage = case_when(desc %notin% c("Total housing units",
                                                "Homeowner vacancy rate",
-                                               "Rental vacancy rate",
+                                               "Rental vacancy rate", 
                                                "Average household size of owner-occupied unit",
                                                "Average household size of renter-occupied unit",
                                                "Owner-occupied units",
@@ -175,14 +179,21 @@ hh_char_formatted <- hh_char_labelled %>%
                                                "Housing units with a mortgage (excluding units where SMOCAPI cannot be computed)",
                                                "Housing unit without a mortgage (excluding units where SMOCAPI cannot be computed)",
                                                "Occupied units paying rent",
-                                               "Occupied units paying rent (excluding units where GRAPI cannot be computed)") ~ 
-                                  round(100 * (estimate/estimate[id == 1]),1) 
-         )) %>% 
+                                               "Occupied units paying rent (excluding units where GRAPI cannot be computed)",
+                                               "Not computed", 
+                                               "No rent paid")
+                           &  (paste(subcat, desc) != "Occupied housing units Occupied housing units") ~ 
+                                  round(100 * (estimate/total_val),1)
+                       
+         ),
+    Estimate = if_else(estimate %%1 == 0, 
+                       format(round(as.numeric(estimate), 0), big.mark=",", trim = TRUE),
+                       as.character(estimate))) %>% 
   ungroup() %>% 
-  select(GEOID, desc, category, estimate, Percentage) %>%
+  select(GEOID, desc, category, Estimate, Percentage) %>%
   rename(Zipcode = GEOID,
-         Label = desc,
-         Estimate=estimate) 
+         Label = desc) 
+
 
 #hh_char_formatted %>% write_csv("hh_char_acs_2017_2021.csv")
 
@@ -222,5 +233,16 @@ race_table_labelled <- race_table %>%
   select(Zipcode, Label, Estimate, Percentage)
   
 
-race_table_labelled %>% write_csv("race_table_acs_2017_2021.csv")
+#race_table_labelled %>% write_csv("race_table_acs_2017_2021.csv")
+
+####Feathers####
+# income_bands <- read_csv("acs_income_bands_2017_2021.csv")
+# med_mean_income <- read_csv("med_mean_income_acs_2017_2021.csv")
+#race_eth <- read_csv("race_table_acs_2017_2021.csv")
+# hh_char <- read_csv("hh_char_acs_2017_2021.csv")
+
+#write_feather(income_bands, "income_bands.feather")
+#write_feather(med_mean_income, "med_mean_income.feather")
+#write_feather(race_eth, "race_eth.feather")
+#write_feather(hh_char, "hh_char.feather")
 

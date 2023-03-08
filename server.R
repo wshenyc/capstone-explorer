@@ -3,13 +3,13 @@ library(tidyverse)
 
 source("ui.R")
 source("helpers.R")
-source("load_data.R")
 
+####Intro Modal####
 server <- function(input, output, session) {
   shinyalert(
     title = "Introduction",
     text = 
-      '<div align = "left">Capstone Data Explorer Demo:</div>
+      '<div align = "left">Grounded Solutions Network Demo:</div>
         </br>
         <div align = "left"><ul>
               <li>Testing out data explorer functions</li>
@@ -21,9 +21,11 @@ server <- function(input, output, session) {
     closeOnClickOutside = TRUE
   )
   
-##----REAL ESTATE SEARCH---------------------------------------------------------
+source("load_data.R")
+  
+##----CENSUS SEARCH---------------------------------------------------------
 #
-# Description: sets up real estate market search
+# Description: sets up census search
 #____________________________________________________________________________
   
   observeEvent(input$zip_search_button, {
@@ -42,7 +44,12 @@ server <- function(input, output, session) {
     output$race_pie <- race_table_gen(race_eth, user_input) 
       
     #household characteristics
-    output$hhchar_table <- hhchar_table_gen(hh_char, user_input) 
+    output$occupancy_table <- hhchar_table_gen(hh_char, user_input, "HOUSING OCCUPANCY")
+    output$tenure_table <- hhchar_table_gen(hh_char, user_input, "HOUSING TENURE")
+    output$gross_rent_table <- hhchar_table_gen(hh_char, user_input, "GROSS RENT")
+    output$grapi_table <- hhchar_table_gen(hh_char, user_input, "GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI)")
+    output$smocapi_table <- hhchar_table_gen(hh_char, user_input, "SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI)")
+    output$value_table <- hhchar_table_gen(hh_char, user_input, "VALUE")
     
     
     #med income box
@@ -67,7 +74,6 @@ server <- function(input, output, session) {
     
     #income bands
     output$income_band_table <- income_table_gen(income_bands, user_input)
-
     
     #show tables
     shinyjs::show("race_wrapper")
@@ -79,9 +85,67 @@ server <- function(input, output, session) {
     
     }#validation result 
     
-  })
+  }) #census search observe event
   
+##----REAL ESTATE SEARCH---------------------------------------------------------
+#
+# Description: sets up real estate market search
+#____________________________________________________________________________
+  
+  
+  observeEvent(input$market_search_button, {
+    
+    user_input <- input$zip_entry
+    
+    #checking its a valid zipcode
+    validationResult <- validateRequiredInput(inputData = user_input)
+    
+    if(validationResult) {
+      
+      #market trends
+      output$home_val_table <- val_table_gen(home_val, user_input)
+      
+      #growth trends
+      #first date
+      output$first_date_box <- renderValueBox({
+        valueBox(
+          date_growth(growth_home, user_input, "2023-02-28"),
+          "Forecasted Growth for Feb 28, 2023",
+          icon = icon("dollar-sign"),
+          color = "blue"
+        )
+      })
+      
+      #2nd date
+      output$second_date_box <- renderValueBox({
+        valueBox(
+          date_growth(growth_home, user_input, "2023-04-30"),
+          "Forecasted Growth for Apr 30, 2023",
+          icon = icon("dollar-sign"),
+          color = "blue"
+        )
+      })
 
+      #3rd date
+      output$third_date_box <- renderValueBox({
+        valueBox(
+          date_growth(growth_home, user_input, "2024-01-31"),
+          "Forecasted Growth for Jan 31, 2024",
+          icon = icon("dollar-sign"),
+          color = "blue"
+        )
+      })
+
+    }#validation result
+    
+    #show tables
+    shinyjs::show("market_wrapper")
+    shinyjs::show("first_date_wrapper")
+    shinyjs::show("second_date_wrapper")
+    shinyjs::show("third_date_wrapper")
+  
+    })#market search closer
+  
   
 } # server closer
 
