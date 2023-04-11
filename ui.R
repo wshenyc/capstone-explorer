@@ -9,6 +9,9 @@ library(dashboardthemes)
 library(shinyalert)
 library(echarts4r)
 
+###geographies
+city_state_list <- read_csv("city_state_list.csv")
+
 ####custom logo####
 customLogo <- shinyDashboardLogoDIY(
   boldText = paste(icon("building"), "Capstone")
@@ -214,23 +217,59 @@ customTheme <- dashboardthemes::shinyDashboardThemeDIY(
 
 ####sidebar####
 sidebar <- dashboardSidebar(
+   
   sidebarMenu(
     id = "tabs",
     menuItem(
-      "Real Estate Market",
+      "Socioeconomics",
       tabName = "census_search",
       icon = icon("building"),
       menuSubItem(icon = NULL,
                   textInput("zip_entry",
                             "Enter a U.S. Zipcode")),
+      
       menuSubItem(icon = NULL,
                   tabName = "census_sub_tab",
-                  actionButton("zip_search_button", "Census Search")),
+                  actionButton("zip_search_button", "Zip Search")), 
+      
+      # menuSubItem(icon = NULL,
+      #             tabName = "market_tab",
+      #             actionButton("market_search_button", "Zip Home Value Search")),
       
       menuSubItem(icon = NULL,
-                  tabName = "market_tab",
-                  actionButton("market_search_button", "Home Value Search"))
+                  selectInput("state_entry",
+                              "Select a U.S. State",
+                              choices = unique(city_state_list$State))),
       
+      menuSubItem(icon = NULL, 
+                  tabName = "city_tab",
+                  uiOutput("city_entry")),
+
+      menuSubItem(icon = NULL,
+                  tabName = "state_city_tab",
+                  actionButton("state_city_search", "City/Town Search")), 
+      
+      menuSubItem(
+        icon = NULL,
+        tabName = "report_tab",
+        downloadButton("downloadReport", "Download Report"))
+      
+      ),#menuitem
+      
+    menuItem(
+      "Real Estate Market",
+      tabName = "market_search",
+      icon = icon("money-bill"),
+      menuSubItem(icon = NULL,
+                  textInput("zip_entry_market",
+                            "Enter a U.S. Zipcode")),
+      menuSubItem(icon = NULL,
+                  tabName = "market_tab",
+                  actionButton("market_search_button", "Zillow Search")),
+      menuSubItem(
+        icon = NULL,
+        tabName = "report_tab_market",
+        downloadButton("downloadReportMarket", "Download Report"))
     ),
     
     # menuItem(
@@ -240,13 +279,13 @@ sidebar <- dashboardSidebar(
     # ),
     
     menuItem(
-      "Political Support",
+      "Political Landscape",
       tabName = "political_search",
-      icon = icon("landmark"),
+      icon = icon("landmark")
       
-      menuSubItem("Electeds Look Up",
-                  icon = icon("check-double"),
-                  tabName="pol_lookup_tab")
+      # menuSubItem("Electeds Look Up",
+      #             icon = icon("check-double"),
+      #             tabName="pol_lookup_tab")
     ), 
     
     # menuItem(
@@ -281,7 +320,9 @@ sidebar <- dashboardSidebar(
                   tabName = "svi_tab")
       
       
-    )
+    ) #menu item
+    
+
   ) #sidebar menu closer
 ) #dashboard sidebar closer
 
@@ -291,6 +332,11 @@ body <- dashboardBody(
   shinyjs::useShinyjs(),
   tabItems(
     tabItem(tabName = "census_sub_tab",
+            fluidRow(
+              infoBoxOutput("geoBox"),
+              infoBoxOutput("med_income_box"), 
+              infoBoxOutput("avg_income_box")
+            ),#fluidrow closer
                       fluidRow(column(6,
                                       shinyjs::hidden(
                                         div(
@@ -329,37 +375,25 @@ body <- dashboardBody(
                                       ))
                                ),#fluid row closer
 
-                      fluidRow(column(
-                        4,
-
-                        fluidRow(shinyjs::hidden(
-                          div(id = "med_inc_box_wrapper",
-
-                              valueBoxOutput("med_income_box", width = 12))
-                        )), #fluid row closer
-
-                        fluidRow(shinyjs::hidden(
-                          div(id = "avg_inc_box_wrapper",
-
-                              valueBoxOutput("avg_income_box", width = 12))
-                        ))#fluid row closer
-
-                      ), #column closer
-
-                      column(8,
+                      fluidRow(
+                        column(12,
                              shinyjs::hidden(
                                div(
                                  id = "income_band_wrapper",
-                                 shinydashboard::box(
+                                 shinydashboard::tabBox(
                                    width = NULL,
-                                   title = p("Breakdown of Households by Income Bands", style = 'font-size:18px;'),
-                                   footer = p("Source: 2017-2021 ACS S1901", style = 'font-size:11px; color: gray; font-style: italic;'),
-                                   status = "primary",
-                                   div(echarts4rOutput('income_band_table'), width =
-                                         "100%")
+                                   #title = p("Breakdown of Households by Income Bands", style = 'font-size:18px;'),
+                                   footer = p("Source: 2017-2021 ACS S1901, B19001B/D/H/I, S2502", style = 'font-size:11px; color: gray; font-style: italic; margin: 20px'),
+                                   #status = "primary",
+                                   tabPanel("Breakdown of All Households by Income Bands", echarts4rOutput('income_band_table')),
+                                   tabPanel("Breakdown of Households by Income Bands and Race", echarts4rOutput('race_income_table')),
+                                   tabPanel("Breakdown of Renters/Owners by Race", DTOutput('rent_own_table'))
+
                                  )
                                )
-                             ))),
+                             )
+                             ) #column
+                      ),#fluidrow closer
 
                    ), #tab item closer
 
@@ -404,12 +438,44 @@ body <- dashboardBody(
                          valueBoxOutput("third_date_box", width = 12)
                        )
                      ))
-            )
+            ),#fluidrow closer
+            
+            fluidRow(
+              
+              column(6,
+                     shinyjs::hidden(
+                       div(
+                         id = "pct_change_wrapper",
+                         shinydashboard::box(
+                           width = NULL,
+                           title = "Annual Percent Change in Typical Home Values",
+                           status = "primary",
+                         footer = p("Source: Zillow Home Value Index (Single-Family Homes)", 
+                                    style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
+                        DTOutput("pct_change_five"))
+                       )
+                     )),
+              
+              column(6,
+                     shinyjs::hidden(
+                       div(
+                         id = "pct_avg_wrapper",
+                         shinydashboard::box(
+                           width = NULL,
+                           title = "Average Percent Change in Typical Home Values",
+                           status = "primary",
+                           footer = p("Source: Zillow Home Value Index (Single-Family Homes)", 
+                                      style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
+                           DTOutput("pct_avg_table"))
+                       )
+                     ))
+              
+            )#fluidrow closer
             
     ),#tabitem closer
 
     
-    tabItem(tabName = "pol_lookup_tab",
+    tabItem(tabName = "political_search",
             fluidRow(
               column(12,
                      #shinyjs::hidden(
@@ -503,6 +569,7 @@ body <- dashboardBody(
             )#fluidrow closer
             
     )#tabitem closer
+    
 
                   )#tab items closer
                   )#dashboard body

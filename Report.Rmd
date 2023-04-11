@@ -1,0 +1,59 @@
+---
+title: "Summary Report"
+author: "Grounded Solutions Network"
+date: "`r Sys.Date()`"
+output: html_document
+params:
+  place: NA
+  race_eth: NA
+  hh_char: NA
+  med_inc: NA
+  avg_inc: NA
+  hh_band: NA
+  inc_race: NA
+  rent_own: NA
+  
+---
+## Selected Geography
+```{r,echo=FALSE}
+print(params$place)
+
+```
+
+## Census Data
+
+### Race/Ethnicity Chart
+```{r,echo=FALSE}
+params$race_eth
+```
+
+### Household Characteristics Table
+```{r,echo=FALSE}
+params$hh_char
+```
+
+### Median and Average Household Incomes##
+Median household income is:
+```{r,echo=FALSE}
+params$med_inc
+```
+Average household income is:
+```{r,echo=FALSE}
+params$avg_inc
+```
+
+
+### Household Income Bands
+```{r, echo=FALSE}
+params$hh_band
+```
+
+### Household Income Bands by Race
+```{r, echo=FALSE}
+params$inc_race
+```
+
+### Owners and Renters Breakdown by Race
+```{r, echo=FALSE}
+params$rent_own
+```
