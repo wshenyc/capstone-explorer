@@ -12,25 +12,6 @@ library(echarts4r)
 ###geographies
 city_state_list <- read_csv("city_state_list.csv")
 
-####custom logo####
-customLogo <- shinyDashboardLogoDIY(
-  boldText = paste(icon("building"), "Capstone")
-  ,
-  mainText = "Demo"
-  ,
-  textSize = 20
-  ,
-  badgeText = "v1.1"
-  ,
-  badgeTextColor = "white"
-  ,
-  badgeTextSize = 2
-  ,
-  badgeBackColor = "#88bed1"
-  ,
-  badgeBorderRadius = 3
-)
-
 
 ####custom theme####
 customTheme <- dashboardthemes::shinyDashboardThemeDIY(
@@ -269,14 +250,13 @@ sidebar <- dashboardSidebar(
       menuSubItem(
         icon = NULL,
         tabName = "report_tab_market",
-        downloadButton("downloadReportMarket", "Download Report"))
+        downloadButton("downloadReportMarket", "Download Report")),
+      
+      menuSubItem("H+T Affordability Index",
+                  icon = icon("building"),
+                  tabName = "hta_tab")
     ),
     
-    # menuItem(
-    #   "Subsidy Environment",
-    #   tabName = "subsidy_search",
-    #   icon = icon("money-bill")
-    # ),
     
     menuItem(
       "Political Landscape",
@@ -288,11 +268,6 @@ sidebar <- dashboardSidebar(
       #             tabName="pol_lookup_tab")
     ), 
     
-    # menuItem(
-    #   "Land Use and Zoning",
-    #   tabName = "zoning_search",
-    #   icon = icon("landmark")
-    # ),
     
     menuItem(
       "Organizational Capacity",
@@ -300,11 +275,6 @@ sidebar <- dashboardSidebar(
       icon = icon("users")
     ),
     
-    # menuItem(
-    #   "Target Buyer Interest",
-    #   tabName = "buyer_search",
-    #   icon = icon("money-bill")
-    # ),
     
     menuItem(
       "Environmental Risk",
@@ -317,7 +287,11 @@ sidebar <- dashboardSidebar(
       
       menuSubItem("Social Vulnerability Index",
                   icon = icon("seedling"),
-                  tabName = "svi_tab")
+                  tabName = "svi_tab"),
+      
+      menuSubItem("Walk Score",
+                  icon = icon("seedling"),
+                  tabName = "walk_tab")
       
       
     ) #menu item
@@ -473,6 +447,30 @@ body <- dashboardBody(
             )#fluidrow closer
             
     ),#tabitem closer
+    
+    tabItem(tabName = "hta_tab",
+            fluidRow(
+              column(12,
+                     #shinyjs::hidden(
+                     div(
+                       id = "hta_lookup",
+                       shinydashboard::box(
+                         width = NULL,
+                         title = "H+T Affordability Index",
+                         status = "primary",
+                         div(
+                           tags$iframe(
+                             src = "https://htaindex.cnt.org/map/",
+                             height = "800px", width = "100%"
+                           )
+                         )
+                       )
+                     )
+                     #)#shinyjs
+              )
+            )#fluidrow closer
+            
+    ),#tabitem closer
 
     
     tabItem(tabName = "political_search",
@@ -564,7 +562,30 @@ body <- dashboardBody(
                          )
                        )
                      )
-                     #)#shinyjs
+                    
+              )
+            )#fluidrow closer
+            
+    ),#tabitem closer
+    
+    tabItem(tabName = "walk_tab",
+            fluidRow(
+              column(12,
+                     div(
+                       id = "walk_lookup",
+                       shinydashboard::box(
+                         width = NULL,
+                         title = "Walk Score",
+                         status = "primary",
+                         div(
+                           tags$iframe(
+                             src = "https://www.walkscore.com/",
+                             height = "800px", width = "100%"
+                           )
+                         )
+                       )
+                     )
+                     
               )
             )#fluidrow closer
             
@@ -576,7 +597,7 @@ body <- dashboardBody(
 
 #dashboard page
 dashboardPage(
-  title = "Capstone Demo",
+  title = "CLT Assessment Tool",
   header = dashboardHeader(title = tags$a(href="https://groundedsolutions.org/",
                                           tags$img(src='https://groundedsolutions.org/themes/custom/groundwork/patternlab/public/images/grounded-solutions-network-logo-white.svg',
                                                    height = '40px'))),

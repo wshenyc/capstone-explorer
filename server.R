@@ -13,15 +13,13 @@ server <- function(input, output, session) {
   shinyalert(
     title = "Introduction",
     text = 
-      '<div align = "left">CLT Assessment Tool:</div>
-        </br>
-        <div align = "left"><ul>
-              <li>The data explorer is an interactive resource 
+      '<div align = "left">
+              <p>The data explorer is an interactive resource 
               that equips Grounded Solutions Network staff with data 
               to streamline their initial feasibility assessment process. 
               The tool includes a dashboard that displays processed data specific to the project location, 
-              and a compilation of external websites that can be visited within the data tool itself.</li>
-            <ul></div>
+              and a compilation of external websites that can be visited within the data tool itself.</p>
+            </div>
         </br>
         <div align = "left">To start, select one of the tabs on the left.</div>', 
     html = TRUE,
@@ -292,7 +290,7 @@ observeEvent(input$market_search_button, {
       #first date
       output$first_date_box <- renderValueBox({
         valueBox(
-          date_growth(growth_home, user_input, "2023-02-28"),
+          paste(date_growth(growth_home, user_input, "2023-02-28"), "%", sep = ""), #testing 
           "Forecasted Growth for Feb 28, 2023",
           icon = icon("dollar-sign"),
           color = "blue"
@@ -302,7 +300,7 @@ observeEvent(input$market_search_button, {
       #2nd date
       output$second_date_box <- renderValueBox({
         valueBox(
-          date_growth(growth_home, user_input, "2023-04-30"),
+          paste(date_growth(growth_home, user_input, "2023-04-30"), '%', sep = ""),
           "Forecasted Growth for Apr 30, 2023",
           icon = icon("dollar-sign"),
           color = "blue"
@@ -312,7 +310,7 @@ observeEvent(input$market_search_button, {
       #3rd date
       output$third_date_box <- renderValueBox({
         valueBox(
-          date_growth(growth_home, user_input, "2024-01-31"),
+          paste(date_growth(growth_home, user_input, "2024-01-31"), '%', sep = ''),
           "Forecasted Growth for Jan 31, 2024",
           icon = icon("dollar-sign"),
           color = "blue"

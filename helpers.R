@@ -60,7 +60,6 @@ geo_select <- function(df, x, y) {
 
 
 hhchar_table_gen <- function(df, user_zip, chosen_state, cat) {
-  #x <- zip_select(df, user_zip) %>% 
   x <- geo_select(df, user_zip, chosen_state) %>% 
     filter(category == cat)
   
@@ -72,7 +71,8 @@ hhchar_table_gen <- function(df, user_zip, chosen_state, cat) {
               pageLength = 5,
               rowGroup = list(dataSrc=c(2)),
                            columnDefs = list(list(visible=FALSE, targets=c(2))))
-  )
+  ) %>% 
+   formatString('Percentage', suffix="%")
   )
   
 }
@@ -92,7 +92,8 @@ hhchar_react_report <- function(df) {
               pageLength = 5,
               rowGroup = list(dataSrc=c(2)),
               columnDefs = list(list(visible=FALSE, targets=c(2))))
-  )
+  ) %>% 
+    formatString('Percentage', suffix="%")
 }
 
 
@@ -264,7 +265,10 @@ rent_own_gen <- function(df, user_zip, chosen_state) {
                 dom = 't', 
                 pageLength = 10
                 )
-    )
+    ) %>% 
+      formatString(columns = c('Percent owner-occupied housing units', 
+                               'Percent renter-occupied housing units'), 
+                   suffix="%")
   }) 
 }
 
@@ -279,7 +283,10 @@ rent_own_react <- function(df){
               dom = 't', 
               pageLength = 10
             )
-  )
+  ) %>% 
+    formatString(columns = c('Percent owner-occupied housing units', 
+                             'Percent renter-occupied housing units'), 
+                 suffix="%")
 }
 
 ####Median Income####
@@ -383,7 +390,9 @@ pct_change_react <- function(df) {
             options = list(
               dom = 'tp',
               pageLength = 5)
-  ) 
+  ) %>% 
+    formatString('pct_change', suffix = '%')
+    
   
 }
 
@@ -400,6 +409,7 @@ pct_avg_react <- function(df) {
             options = list(
               dom = 'tp',
               pageLength = 5)
-  ) 
+  ) %>% 
+    formatString('pct_change', suffix = '%')
   
 }
