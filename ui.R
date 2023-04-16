@@ -11,6 +11,7 @@ library(echarts4r)
 
 ###geographies
 city_state_list <- read_csv("city_state_list.csv")
+msa <- read_csv("msa_list.csv")
 
 
 ####custom theme####
@@ -238,7 +239,7 @@ sidebar <- dashboardSidebar(
       ),#menuitem
       
     menuItem(
-      "Real Estate Market",
+      "Zillow Search",
       tabName = "market_search",
       icon = icon("money-bill"),
       menuSubItem(icon = NULL,
@@ -246,17 +247,27 @@ sidebar <- dashboardSidebar(
                             "Enter a U.S. Zipcode")),
       menuSubItem(icon = NULL,
                   tabName = "market_tab",
-                  actionButton("market_search_button", "Zillow Search")),
+                  actionButton("market_search_button", "Zip Search")),
+      menuSubItem(icon = NULL,
+                  selectInput("msa_entry",
+                              "Select a Metro Area",
+                              choices = unique(msa))),
+      menuSubItem(icon = NULL,
+                  tabName = "msa_tab",
+                  actionButton("msa_search_button", "Metro Search")),
       menuSubItem(
         icon = NULL,
         tabName = "report_tab_market",
-        downloadButton("downloadReportMarket", "Download Report")),
-      
-      menuSubItem("H+T Affordability Index",
-                  icon = icon("building"),
-                  tabName = "hta_tab")
+        downloadButton("downloadReportMarket", "Download Report"))
+    
     ),
     
+    menuItem(
+      "H+T Affordability Index",
+      tabName = "hta_tab",
+      icon = icon("building")
+    ),
+
     
     menuItem(
       "Political Landscape",
@@ -305,6 +316,8 @@ body <- dashboardBody(
   customTheme,
   shinyjs::useShinyjs(),
   tabItems(
+    
+    ####CENSUS ZIP SEARCH####
     tabItem(tabName = "census_sub_tab",
             fluidRow(
               infoBoxOutput("geoBox"),
@@ -367,22 +380,93 @@ body <- dashboardBody(
                                )
                              )
                              ) #column
-                      ),#fluidrow closer
+                      )#fluidrow closer #extra comma? 
 
                    ), #tab item closer
-
+    
+  ####CENSUS PLACE TAB####
+  tabItem(tabName = "state_city_tab",
+          fluidRow(
+            infoBoxOutput("geoBox_place"),
+            infoBoxOutput("med_income_box_place"), 
+            infoBoxOutput("avg_income_box_place")
+          ),#fluidrow closer
+          fluidRow(column(6,
+                          shinyjs::hidden(
+                            div(
+                              id = "race_wrapper_place",
+                              shinydashboard::box(
+                                width = NULL,
+                                #height = "40em",
+                                title = p("Race/Ethnicity", style = 'font-size:18px;'),
+                                footer = p("Source: 2017-2021 ACS B03002", 
+                                           style = 'font-size:11px; color: gray; font-style: italic;'),
+                                status = "primary",
+                                div(echarts4rOutput('race_pie_place'), width = "100%")
+                              )
+                            )
+                          )),
+                   
+                   column(6,
+                          shinyjs::hidden(
+                            div(
+                              id = "hhchar_wrapper_place",
+                              shinydashboard::tabBox(
+                                width = NULL,
+                                #height = "40em",
+                                #title = p("Household Characteristics", style = 'font-size:18px;'),
+                                id = "hhchar_tab",
+                                footer = p("Source: 2017-2021 ACS DP04", 
+                                           style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
+                                tabPanel("Housing Occupancy", DTOutput("occupancy_table_place")),
+                                tabPanel("Housing Tenure", DTOutput("tenure_table_place")),
+                                tabPanel("Gross Rent", DTOutput("gross_rent_table_place")),
+                                tabPanel("GRAPI", DTOutput("grapi_table_place")),
+                                tabPanel("SMOCAPI", DTOutput("smocapi_table_place")),
+                                tabPanel("Owner-Occupied Home Value", DTOutput("value_table_place"))
+                              )
+                            )
+                          ))
+          ),#fluid row closer
+          
+          fluidRow(
+            column(12,
+                   shinyjs::hidden(
+                     div(
+                       id = "income_band_wrapper_place",
+                       shinydashboard::tabBox(
+                         width = NULL,
+                         #title = p("Breakdown of Households by Income Bands", style = 'font-size:18px;'),
+                         footer = p("Source: 2017-2021 ACS S1901, B19001B/D/H/I, S2502", style = 'font-size:11px; color: gray; font-style: italic; margin: 20px'),
+                         #status = "primary",
+                         tabPanel("Breakdown of All Households by Income Bands", echarts4rOutput('income_band_table_place')),
+                         tabPanel("Breakdown of Households by Income Bands and Race", echarts4rOutput('race_income_table_place')),
+                         tabPanel("Breakdown of Renters/Owners by Race", DTOutput('rent_own_table_place'))
+                         
+                       )
+                     )
+                   )
+            ) #column
+          )#fluidrow closer #extra comma? 
+          
+  ), #tab item closer
+  
+  
+  ####ZILLOW ZIP TAB####
     tabItem(tabName = "market_tab",
             fluidRow(
               column(12,
                      shinyjs::hidden(
                      div(
                        id = "market_wrapper",
-                       shinydashboard::box(
+                       shinydashboard::tabBox(
                          width = NULL,
-                         title = "Zillow - Market Trends",
-                         status = "primary",
-                         div(echarts4rOutput('home_val_table'), width =
-                               "100%")
+                         tabPanel("All SFH", echarts4rOutput('home_val_table')),
+                         tabPanel("One Bedrooms", echarts4rOutput('onebd_val_table')),
+                         tabPanel("Two Bedrooms", echarts4rOutput('twobd_val_table')),
+                         tabPanel("Three Bedrooms", echarts4rOutput('threebd_val_table')),
+                         tabPanel("Four Bedrooms", echarts4rOutput('fourbd_val_table')),
+                         tabPanel("Five+ Bedrooms", echarts4rOutput('fivebd_val_table'))
                        )
                      )
                      )#shinyjs
@@ -417,41 +501,141 @@ body <- dashboardBody(
             fluidRow(
               
               column(6,
-                     shinyjs::hidden(
+                     #shinyjs::hidden(
                        div(
                          id = "pct_change_wrapper",
-                         shinydashboard::box(
+                         shinydashboard::tabBox( 
                            width = NULL,
-                           title = "Annual Percent Change in Typical Home Values",
-                           status = "primary",
-                         footer = p("Source: Zillow Home Value Index (Single-Family Homes)", 
+                         footer = p("Source: Zillow Home Value Index (Single-Family Homes or By Bedroom Size For All Types of Homes)", 
                                     style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
-                        DTOutput("pct_change_five"))
+                        tabPanel("All SFH", DTOutput("pct_change_five")),
+                        tabPanel("One Bedrooms", DTOutput("onebd_change_five")),
+                        tabPanel("Two Bedrooms", DTOutput("twobd_change_five")),
+                        tabPanel("Three Bedrooms", DTOutput("threebd_change_five")),
+                        tabPanel("Four Bedrooms", DTOutput("fourbd_change_five")),
+                        tabPanel("Five Bedrooms", DTOutput("fivebd_change_five"))
+                        ) 
                        )
-                     )),
+                     #)#shinyjs closer
+                     ),
               
               column(6,
                      shinyjs::hidden(
                        div(
                          id = "pct_avg_wrapper",
-                         shinydashboard::box(
+                         shinydashboard::tabBox(
                            width = NULL,
-                           title = "Average Percent Change in Typical Home Values",
-                           status = "primary",
-                           footer = p("Source: Zillow Home Value Index (Single-Family Homes)", 
+                           footer = p("Source: Zillow Home Value Index (Single-Family Homes or By Bedroom Size For All Types of Homes)", 
                                       style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
-                           DTOutput("pct_avg_table"))
-                       )
+                           tabPanel("All SFH", DTOutput("pct_avg_table")),
+                           tabPanel("One Bedrooms", DTOutput("onebd_pct_avg_table")),
+                           tabPanel("Two Bedrooms", DTOutput("twobd_pct_avg_table")),
+                           tabPanel("Three Bedrooms", DTOutput("threebd_pct_avg_table")),
+                           tabPanel("Four Bedrooms", DTOutput("fourbd_pct_avg_table")),
+                           tabPanel("Five Bedrooms", DTOutput("fivebd_pct_avg_table"))
+                       )#tab box closer
                      ))
+              )#column closer
               
             )#fluidrow closer
             
     ),#tabitem closer
     
+  ###ZILLOW MSA TAB####
+    tabItem(tabName = "msa_tab",
+            fluidRow(
+              column(12,
+                     shinyjs::hidden(
+                       div(
+                         id = "market_wrapper_msa",
+                         shinydashboard::tabBox(
+                           width = NULL,
+                           tabPanel("All SFH", echarts4rOutput('home_val_table_msa')),
+                           tabPanel("One Bedrooms", echarts4rOutput('onebd_val_table_msa')),
+                           tabPanel("Two Bedrooms", echarts4rOutput('twobd_val_table_msa')),
+                           tabPanel("Three Bedrooms", echarts4rOutput('threebd_val_table_msa')),
+                           tabPanel("Four Bedrooms", echarts4rOutput('fourbd_val_table_msa')),
+                           tabPanel("Five+ Bedrooms", echarts4rOutput('fivebd_val_table_msa'))
+                         )
+                       )
+                     )#shinyjs
+              )
+            ), #fluidrow closer
+            fluidRow(
+              column(4,
+                     shinyjs::hidden(
+                       div(
+                         id = "first_date_wrapper_msa",
+                         valueBoxOutput("first_date_box_msa", width = 12)
+                       )
+                     )),
+
+              column(4,
+                     shinyjs::hidden(
+                       div(
+                         id = "second_date_wrapper_msa",
+                         valueBoxOutput("second_date_box_msa", width = 12)
+                       )
+                     )),
+
+              column(4,
+                     shinyjs::hidden(
+                       div(
+                         id = "third_date_wrapper_msa",
+                         valueBoxOutput("third_date_box_msa", width = 12)
+                       )
+                     ))
+            ),#fluidrow closer
+
+            fluidRow(
+
+              column(6,
+                     #shinyjs::hidden(
+                     div(
+                       id = "pct_change_wrapper_msa",
+                       shinydashboard::tabBox(
+                         width = NULL,
+                         footer = p("Source: Zillow Home Value Index (Single-Family Homes or By Bedroom Size For All Types of Homes)",
+                                    style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
+                         tabPanel("All SFH", DTOutput("pct_change_five_msa")),
+                         tabPanel("One Bedrooms", DTOutput("onebd_change_five_msa")),
+                         tabPanel("Two Bedrooms", DTOutput("twobd_change_five_msa")),
+                         tabPanel("Three Bedrooms", DTOutput("threebd_change_five_msa")),
+                         tabPanel("Four Bedrooms", DTOutput("fourbd_change_five_msa")),
+                         tabPanel("Five Bedrooms", DTOutput("fivebd_change_five_msa"))
+                       )
+                     )
+                     #)#shinyjs closer
+              ),
+
+              column(6,
+                     shinyjs::hidden(
+                       div(
+                         id = "pct_avg_wrapper_msa",
+                         shinydashboard::tabBox(
+                           width = NULL,
+                           footer = p("Source: Zillow Home Value Index (Single-Family Homes or By Bedroom Size For All Types of Homes)",
+                                      style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
+                           tabPanel("All SFH", DTOutput("pct_avg_table_msa")),
+                           tabPanel("One Bedrooms", DTOutput("onebd_pct_avg_table_msa")),
+                           tabPanel("Two Bedrooms", DTOutput("twobd_pct_avg_table_msa")),
+                           tabPanel("Three Bedrooms", DTOutput("threebd_pct_avg_table_msa")),
+                           tabPanel("Four Bedrooms", DTOutput("fourbd_pct_avg_table_msa")),
+                           tabPanel("Five Bedrooms", DTOutput("fivebd_pct_avg_table_msa"))
+                         )#tab box closer
+                       ))
+              )#column closer
+
+            )#fluidrow closer
+            
+    ),#tabitem closer
+
+   
+    ###HTA TAB####
     tabItem(tabName = "hta_tab",
             fluidRow(
               column(12,
-                     #shinyjs::hidden(
+                     shinyjs::hidden(
                      div(
                        id = "hta_lookup",
                        shinydashboard::box(
@@ -466,13 +650,16 @@ body <- dashboardBody(
                          )
                        )
                      )
-                     #)#shinyjs
+                     )#shinyjs
               )
             )#fluidrow closer
             
     ),#tabitem closer
-
     
+  
+
+
+    ###POLITICAL SEARCH####
     tabItem(tabName = "political_search",
             fluidRow(
               column(12,

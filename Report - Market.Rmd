@@ -5,13 +5,31 @@ date: "`r Sys.Date()`"
 output: html_document
 params:
   place: NA
+  
   zhvi: NA
+  zhvi_onebd: NA
+  zhvi_twobd: NA
+  zhvi_threebd: NA
+  zhvi_fourbd: NA
+  zhvi_fivebd: NA 
+              
   zfhg_one: NA
   zfhg_two: NA
   zfhg_three: NA
-  pct_five: NA
-  pct_avg: NA
   
+  pct_five: NA
+  onebd_pct_change_table: NA
+  twobd_pct_change_table: NA
+  threebd_pct_change_table: NA 
+  fourbd_pct_change_table: NA
+  fivebd_pct_change_table: NA 
+
+  pct_avg: NA
+  onebd_pct_avg_table: NA
+  twobd_pct_avg_table: NA
+  threebd_pct_avg_table: NA
+  fourbd_pct_avg_table: NA 
+  fivebd_pct_avg_table: NA 
 ---
 ## Selected Geography
 ```{r,echo=FALSE}
@@ -21,23 +39,101 @@ print(params$place)
 
 ## Real Estate Market Trends
 
-### Zillow Home Value Index
+### Zillow Home Value Index for Single-Family Homes
 ```{r,echo=FALSE}
 params$zhvi
 ```
 
-### Annual Percent Change in Home Value
+### Annual Percent Change in Home Value for Single-Family Homes
 ```{r, echo=FALSE}
 params$pct_five
 ```
 
-### Average Percent Change in Home Value
+### Average Percent Change in Home Value for Single-Family Homes
 ```{r, echo=FALSE}
 params$pct_avg
 ```
 
+### Zillow Home Value Index for One Bedrooms (All Home Types)
+```{r,echo=FALSE}
+params$zhvi_onebd
+```
 
-### Zillow Forecasted Value Growth
+### Annual Percent Change in Home Value for One Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$onebd_pct_change_table
+```
+
+### Average Percent Change in Home Value for One Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$onebd_pct_avg_table
+```
+
+
+### Zillow Home Value Index for Two Bedrooms (All Home Types)
+```{r,echo=FALSE}
+params$zhvi_twobd
+```
+
+### Annual Percent Change in Home Value for Two Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$twobd_pct_change_table
+```
+
+### Average Percent Change in Home Value for Two Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$twobd_pct_avg_table
+```
+
+### Zillow Home Value Index for Three Bedrooms (All Home Types)
+```{r,echo=FALSE}
+params$zhvi_threebd
+```
+
+### Annual Percent Change in Home Value for Three Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$threebd_pct_change_table
+```
+
+### Average Percent Change in Home Value for Three Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$threebd_pct_avg_table
+```
+
+### Zillow Home Value Index for Four Bedrooms (All Home Types)
+```{r,echo=FALSE}
+params$zhvi_fourbd
+```
+
+### Annual Percent Change in Home Value for Four Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$fourbd_pct_change_table
+```
+
+### Average Percent Change in Home Value for Four Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$fourbd_pct_avg_table
+```
+
+### Zillow Home Value Index for Five Bedrooms (All Home Types)
+```{r,echo=FALSE}
+params$zhvi_fivebd
+```
+
+### Annual Percent Change in Home Value for Five Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$fivebd_pct_change_table
+```
+
+### Average Percent Change in Home Value for Five Bedrooms (All Home Types)
+```{r, echo=FALSE}
+params$fivebd_pct_avg_table
+```
+
+
+
+
+### Zillow Forecasted Value Growth for All Home Types
 Feb 28, 2023 forecasted growth: 
 ```{r,echo=FALSE}
 params$zfhg_one

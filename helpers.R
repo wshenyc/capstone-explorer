@@ -32,13 +32,6 @@ validateRequiredInput <- function(inputData) {
   return(TRUE)
 }
 
-####user zip selection####
-zip_select <- function(df, x) {
-  df %>% 
-    filter(Zipcode == x) %>% 
-    select(-c(Zipcode))
-}
-
 ####geo select####
 geo_select <- function(df, x, y) {
   if("City" %in% colnames(df)) {
@@ -320,12 +313,21 @@ income_avg_gen <- function(df, user_zip,chosen_state) {
 
 ####Home value trends####
 val_table_gen <- function(df, user_zip) {
-  x <- df %>% 
-    filter(RegionName == user_zip) %>% 
-    select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
-    pivot_longer(cols = starts_with("20"),
-                 names_to = "date",
-                 values_to = "Value") 
+  if("State" %in% colnames(df)) {
+    x <- df %>% 
+      filter(RegionName == user_zip) %>% 
+      select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
+      pivot_longer(cols = starts_with("20"),
+                   names_to = "date",
+                   values_to = "Value") 
+  } else {
+    x <- df %>% 
+      filter(RegionName == user_zip) %>% 
+      select(-c(RegionID, SizeRank, RegionType, StateName)) %>% 
+      pivot_longer(cols = starts_with("20"),
+                   names_to = "date",
+                   values_to = "Value") 
+  }
   
   plot <- x %>% 
     e_charts(date) %>% 
@@ -334,7 +336,7 @@ val_table_gen <- function(df, user_zip) {
     e_tooltip() %>% 
     e_legend(FALSE) %>% 
     e_title(text = "Typical Home Values from 2000 - 2023",
-            subtext = "Source: Zillow Home Value Index (Single-Family Homes)") 
+            subtext = "Source: Zillow Home Value Index (Single-Family Homes or By Bedroom Size For All Types of Homes)") 
   
   renderEcharts4r({
     plot
@@ -343,12 +345,21 @@ val_table_gen <- function(df, user_zip) {
 
 ##react zillow home value
 val_table_report <- function(df, user_zip) {
-  x <- df %>% 
-    filter(RegionName == user_zip) %>% 
-    select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
-    pivot_longer(cols = starts_with("20"),
-                 names_to = "date",
-                 values_to = "Value") 
+  if("State" %in% colnames(df)) {
+    x <- df %>% 
+      filter(RegionName == user_zip) %>% 
+      select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
+      pivot_longer(cols = starts_with("20"),
+                   names_to = "date",
+                   values_to = "Value") 
+  } else {
+    x <- df %>% 
+      filter(RegionName == user_zip) %>% 
+      select(-c(RegionID, SizeRank, RegionType, StateName)) %>% 
+      pivot_longer(cols = starts_with("20"),
+                   names_to = "date",
+                   values_to = "Value") 
+  }
 }
 
 val_react_report <- function(df) {
@@ -359,18 +370,27 @@ val_react_report <- function(df) {
     e_tooltip() %>% 
     e_legend(FALSE) %>% 
     e_title(text = "Typical Home Values from 2000 - 2023",
-            subtext = "Source: Zillow Home Value Index (Single-Family Homes)") 
+            subtext = "Source: Zillow Home Value Index (Single-Family Homes or By Bedroom Size For All Types of Homes)") 
 }
 
 ####home value growth####
 date_growth <- function(df, user_zip, date_val) {
-  x <- df %>% 
-    filter(RegionName == user_zip) %>% 
-    select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
-    pivot_longer(cols = starts_with("20"),
-                 names_to = "date",
-                 values_to = "Growth") 
-  
+  if("State" %in% colnames(df)) {
+    x <- df %>% 
+      filter(RegionName == user_zip) %>% 
+      select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
+      pivot_longer(cols = starts_with("20"),
+                   names_to = "date",
+                   values_to = "Growth") 
+  } else {
+    x <- df %>% 
+      filter(RegionName == user_zip) %>% 
+      select(-c(RegionID, SizeRank, RegionType, StateName)) %>% 
+      pivot_longer(cols = starts_with("20"),
+                   names_to = "date",
+                   values_to = "Growth")  
+  }
+
   value <- x %>% 
     filter(grepl(date_val, date))
   

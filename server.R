@@ -174,7 +174,7 @@ output$city_entry <- renderUI({
     rv$place <- temp_place
   
     #selected geo box 
-    output$geoBox <- renderInfoBox({
+    output$geoBox_place <- renderInfoBox({
       infoBox(
         "Selected Geography", rv$place, icon = icon("map"),
         color = "purple"
@@ -184,19 +184,19 @@ output$city_entry <- renderUI({
     #these are the outputs 
     
     #race/ethnicity table 
-    output$race_pie <- race_table_gen(race_eth_place, user_input, state_input)
+    output$race_pie_place <- race_table_gen(race_eth_place, user_input, state_input)
     
     ##react version of race/eth##
     race_table <- race_table_report(race_eth_place, user_input, state_input)
     rv$race_eth <- race_table_react(race_table)
       
     #household characteristics
-    output$occupancy_table <- hhchar_table_gen(hh_char_place, user_input, state_input, "HOUSING OCCUPANCY")
-    output$tenure_table <- hhchar_table_gen(hh_char_place, user_input, state_input, "HOUSING TENURE")
-    output$gross_rent_table <- hhchar_table_gen(hh_char_place, user_input, state_input,"GROSS RENT")
-    output$grapi_table <- hhchar_table_gen(hh_char_place, user_input, state_input,"GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI)")
-    output$smocapi_table <- hhchar_table_gen(hh_char_place, user_input, state_input,"SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI)")
-    output$value_table <- hhchar_table_gen(hh_char_place, user_input, state_input,"VALUE")
+    output$occupancy_table_place <- hhchar_table_gen(hh_char_place, user_input, state_input, "HOUSING OCCUPANCY")
+    output$tenure_table_place <- hhchar_table_gen(hh_char_place, user_input, state_input, "HOUSING TENURE")
+    output$gross_rent_table_place <- hhchar_table_gen(hh_char_place, user_input, state_input,"GROSS RENT")
+    output$grapi_table_place <- hhchar_table_gen(hh_char_place, user_input, state_input,"GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI)")
+    output$smocapi_table_place <- hhchar_table_gen(hh_char_place, user_input, state_input,"SELECTED MONTHLY OWNER COSTS AS A PERCENTAGE OF HOUSEHOLD INCOME (SMOCAPI)")
+    output$value_table_place <- hhchar_table_gen(hh_char_place, user_input, state_input,"VALUE")
   
     ##react version of hh char##
     hhchar_table <- hhchar_table_report(hh_char_place, user_input,state_input)
@@ -204,7 +204,7 @@ output$city_entry <- renderUI({
 
 
     #med income box
-    output$med_income_box <- renderInfoBox({
+    output$med_income_box_place <- renderInfoBox({
       infoBox(
         "Median Household Income",
         income_med_gen(med_mean_income_place, user_input,state_input),
@@ -217,7 +217,7 @@ output$city_entry <- renderUI({
     rv$med_inc <- income_med_gen(med_mean_income_place, user_input,state_input)
 
     #avg income box
-    output$avg_income_box <- renderInfoBox({
+    output$avg_income_box_place <- renderInfoBox({
       infoBox(
         "Average Household Income",
         income_avg_gen(med_mean_income_place, user_input,state_input),
@@ -230,42 +230,42 @@ output$city_entry <- renderUI({
     rv$avg_inc <- income_avg_gen(med_mean_income_place, user_input,state_input)
 
     #income bands
-    output$income_band_table <- income_table_gen(income_bands_place, user_input,state_input)
+    output$income_band_table_place <- income_table_gen(income_bands_place, user_input,state_input)
 
     ##react hh bands
     hhband_table <- income_table_report(income_bands_place,user_input,state_input)
     rv$hh_band <- income_react_report(hhband_table)
     
     #income by race
-    output$race_income_table <- inc_race_gen(race_income_bands_place, user_input,state_input)
+    output$race_income_table_place <- inc_race_gen(race_income_bands_place, user_input,state_input)
     
     #react income by race
     race_inc_table <- inc_race_report(race_income_bands_place, user_input, state_input)
     rv$inc_race <- inc_race_react(race_inc_table)
     
     #renter/owner by race
-    output$rent_own_table <- rent_own_gen(rent_own_place, user_input, state_input)
+    output$rent_own_table_place <- rent_own_gen(rent_own_place, user_input, state_input)
     
     #react renter/owner by race
     rent_own_table <- rent_own_report(rent_own_place, user_input, state_input)
     rv$rent_own <- rent_own_react(rent_own_table)
     
     #show tables
-    shinyjs::show("race_wrapper")
-    shinyjs::show("hhchar_wrapper")
-    shinyjs::show("income_band_wrapper")
-    shinyjs::show("med_mean_wrapper")
-    shinyjs::show("med_inc_box_wrapper")
-    shinyjs::show("avg_inc_box_wrapper")
+    shinyjs::show("race_wrapper_place")
+    shinyjs::show("hhchar_wrapper_place")
+    shinyjs::show("income_band_wrapper_place")
+    shinyjs::show("med_mean_wrapper_place")
+    shinyjs::show("med_inc_box_wrapper_place")
+    shinyjs::show("avg_inc_box_wrapper_place")
     
 
   }) #census city search observe event
 
   
   
-##----REAL ESTATE SEARCH---------------------------------------------------------
+##----REAL ESTATE ZIP SEARCH---------------------------------------------------------
 #
-# Description: sets up real estate market search
+# Description: sets up real estate market zip search
 #____________________________________________________________________________
   
   
@@ -281,17 +281,40 @@ observeEvent(input$market_search_button, {
       
       #market trends
       output$home_val_table <- val_table_gen(home_val, user_input)
+      output$onebd_val_table <- val_table_gen(onebd_zhvi, user_input)
+      output$twobd_val_table <- val_table_gen(twod_zhvi, user_input)
+      output$threebd_val_table <- val_table_gen(threebd_zhvi, user_input)
+      output$fourbd_val_table <- val_table_gen(fourbd_zhvi, user_input)
+      output$fivebd_val_table <- val_table_gen(fivebd_zhvi, user_input)
       
       ##react market
       val_table <- val_table_report(home_val,user_input)
       rv$zhvi <- val_react_report(val_table)
       
+      #by bedroom size
+      onebd_val_table <- val_table_report(onebd_zhvi,user_input)
+      rv$zhvi_onebd <- val_react_report(onebd_val_table)
+      
+      twobd_val_table <- val_table_report(twod_zhvi,user_input)
+      rv$zhvi_twobd <- val_react_report(twobd_val_table)
+      
+      threebd_val_table <- val_table_report(threebd_zhvi,user_input)
+      rv$zhvi_threebd <- val_react_report(threebd_val_table)
+      
+      fourbd_val_table <- val_table_report(fourbd_zhvi,user_input)
+      rv$zhvi_fourbd <- val_react_report(fourbd_val_table)
+      
+      fivebd_val_table <- val_table_report(fivebd_zhvi,user_input)
+      rv$zhvi_fivebd <- val_react_report(fivebd_val_table)
+      
+      
+      
       #growth trends
       #first date
       output$first_date_box <- renderValueBox({
         valueBox(
-          paste(date_growth(growth_home, user_input, "2023-02-28"), "%", sep = ""), #testing 
-          "Forecasted Growth for Feb 28, 2023",
+          paste(date_growth(growth_home, user_input, "2023-04-30"), "%", sep = ""), #testing 
+          "Forecasted Growth for All Types of Homes for April 30, 2023",
           icon = icon("dollar-sign"),
           color = "blue"
         )
@@ -300,8 +323,8 @@ observeEvent(input$market_search_button, {
       #2nd date
       output$second_date_box <- renderValueBox({
         valueBox(
-          paste(date_growth(growth_home, user_input, "2023-04-30"), '%', sep = ""),
-          "Forecasted Growth for Apr 30, 2023",
+          paste(date_growth(growth_home, user_input, "2023-06-30"), '%', sep = ""),
+          "Forecasted Growth for All Types of Homes for Jun 30, 2023",
           icon = icon("dollar-sign"),
           color = "blue"
         )
@@ -310,8 +333,8 @@ observeEvent(input$market_search_button, {
       #3rd date
       output$third_date_box <- renderValueBox({
         valueBox(
-          paste(date_growth(growth_home, user_input, "2024-01-31"), '%', sep = ''),
-          "Forecasted Growth for Jan 31, 2024",
+          paste(date_growth(growth_home, user_input, "2024-03-31"), '%', sep = ''),
+          "Forecasted Growth for All Types of Homes for Mar 31, 2024",
           icon = icon("dollar-sign"),
           color = "blue"
         )
@@ -326,13 +349,55 @@ observeEvent(input$market_search_button, {
       pct_table <- pct_change_val(home_val_five, user_input)
       
       rv$pct_change_table <- pct_change_react(pct_table)
-      
+  
       output$pct_change_five <- renderDT({rv$pct_change_table}) 
+      
+      #pct growth by bedroom size
+      onebd_pct_table <- pct_change_val(onebd_five_year_growth, user_input)
+      rv$onebd_pct_change_table <- pct_change_react(onebd_pct_table)
+      output$onebd_change_five <- renderDT({rv$onebd_pct_change_table}) 
+      
+      twobd_pct_table <- pct_change_val(twobd_five_year_growth, user_input)
+      rv$twobd_pct_change_table <- pct_change_react(twobd_pct_table)
+      output$twobd_change_five <- renderDT({rv$twobd_pct_change_table}) 
+      
+      threebd_pct_table <- pct_change_val(threebd_five_year_growth, user_input)
+      rv$threebd_pct_change_table <- pct_change_react(threebd_pct_table)
+      output$threebd_change_five <- renderDT({rv$threebd_pct_change_table}) 
+      
+      fourbd_pct_table <- pct_change_val(fourbd_five_year_growth, user_input)
+      rv$fourbd_pct_change_table <- pct_change_react(fourbd_pct_table)
+      output$fourbd_change_five <- renderDT({rv$fourbd_pct_change_table}) 
+      
+      fivebd_pct_table <- pct_change_val(fivebd_five_year_growth, user_input)
+      rv$fivebd_pct_change_table <- pct_change_react(fivebd_pct_table)
+      output$fivebd_change_five <- renderDT({rv$fivebd_pct_change_table}) 
       
       ##table of avg pct growth
       avg_table <- pct_change_avg(home_avg_five, user_input)
       rv$pct_avg_table <- pct_avg_react(avg_table)
       output$pct_avg_table <- renderDT({rv$pct_avg_table})
+      
+      #bedroom size avg pct growth
+      onebd_avg_table <- pct_change_avg(onebd_avg_growth, user_input)
+      rv$onebd_pct_avg_table <- pct_avg_react(onebd_avg_table)
+      output$onebd_pct_avg_table <- renderDT({rv$onebd_pct_avg_table})
+      
+      twobd_avg_table <- pct_change_avg(twobd_avg_growth, user_input)
+      rv$twobd_pct_avg_table <- pct_avg_react(twobd_avg_table)
+      output$twobd_pct_avg_table <- renderDT({rv$twobd_pct_avg_table})
+      
+      threebd_avg_table <- pct_change_avg(threebd_avg_growth, user_input)
+      rv$threebd_pct_avg_table <- pct_avg_react(threebd_avg_table)
+      output$threebd_pct_avg_table <- renderDT({rv$threebd_pct_avg_table})
+      
+      fourbd_avg_table <- pct_change_avg(fourbd_avg_growth, user_input)
+      rv$fourbd_pct_avg_table <- pct_avg_react(fourbd_avg_table)
+      output$fourbd_pct_avg_table <- renderDT({rv$fourbd_pct_avg_table})
+      
+      fivebd_avg_table <- pct_change_avg(fivebd_avg_growth, user_input)
+      rv$fivebd_pct_avg_table <- pct_avg_react(fivebd_avg_table)
+      output$fivebd_pct_avg_table <- renderDT({rv$fivebd_pct_avg_table})
 
     }#validation result
     
@@ -346,7 +411,155 @@ observeEvent(input$market_search_button, {
   
     })#market search closer
   
-
+##----REAL ESTATE MSA SEARCH---------------------------------------------------------
+#
+# Description: sets up real estate market MSA search
+#____________________________________________________________________________
+  
+  
+  observeEvent(input$msa_search_button, {
+    
+    user_input <- input$msa_entry
+    rv$place <- user_input 
+    
+    #shiny success
+    shinyalert(
+      title = "Success",
+      text = paste("Successful search!"),
+      type = "success"
+    )
+      
+      #market trends
+      output$home_val_table_msa <- val_table_gen(home_val_metro, user_input)
+      output$onebd_val_table_msa <- val_table_gen(onebd_zhvi_metro, user_input)
+      output$twobd_val_table_msa <- val_table_gen(twobd_zhvi_metro, user_input)
+      output$threebd_val_table_msa <- val_table_gen(threebd_zhvi_metro, user_input)
+      output$fourbd_val_table_msa <- val_table_gen(fourbd_zhvi_metro, user_input)
+      output$fivebd_val_table_msa <- val_table_gen(fivebd_zhvi_metro, user_input)
+      
+      ##react market
+      val_table <- val_table_report(home_val_metro,user_input)
+      rv$zhvi <- val_react_report(val_table)
+      
+      #by bedroom size
+      onebd_val_table <- val_table_report(onebd_zhvi_metro,user_input)
+      rv$zhvi_onebd <- val_react_report(onebd_val_table)
+      
+      twobd_val_table <- val_table_report(twobd_zhvi_metro,user_input)
+      rv$zhvi_twobd <- val_react_report(twobd_val_table)
+      
+      threebd_val_table <- val_table_report(threebd_zhvi_metro,user_input)
+      rv$zhvi_threebd <- val_react_report(threebd_val_table)
+      
+      fourbd_val_table <- val_table_report(fourbd_zhvi_metro,user_input)
+      rv$zhvi_fourbd <- val_react_report(fourbd_val_table)
+      
+      fivebd_val_table <- val_table_report(fivebd_zhvi_metro,user_input)
+      rv$zhvi_fivebd <- val_react_report(fivebd_val_table)
+      
+      
+      
+      #growth trends
+      #first date
+      output$first_date_box_msa <- renderValueBox({
+        valueBox(
+          paste(date_growth(growth_metro, user_input, "2023-04-30"), "%", sep = ""), #testing 
+          "Forecasted Growth for All Types of Homes for April 30, 2023",
+          icon = icon("dollar-sign"),
+          color = "blue"
+        )
+      })
+      
+      #2nd date
+      output$second_date_box_msa <- renderValueBox({
+        valueBox(
+          paste(date_growth(growth_metro, user_input, "2023-06-30"), '%', sep = ""),
+          "Forecasted Growth for All Types of Homes for Jun 30, 2023",
+          icon = icon("dollar-sign"),
+          color = "blue"
+        )
+      })
+      
+      #3rd date
+      output$third_date_box_msa <- renderValueBox({
+        valueBox(
+          paste(date_growth(growth_metro, user_input, "2024-03-31"), '%', sep = ''),
+          "Forecasted Growth for All Types of Homes for Mar 31, 2024",
+          icon = icon("dollar-sign"),
+          color = "blue"
+        )
+      })
+      
+      ##react vals of future growth
+      rv$zfhg_one <- date_growth(growth_metro, user_input, "2023-02-28")
+      rv$zfhg_two <- date_growth(growth_metro, user_input, "2023-04-30")
+      rv$zfhg_three <- date_growth(growth_metro, user_input, "2024-01-31")
+      
+      ##table of pct growth 
+      pct_table <- pct_change_val(home_val_five_metro, user_input)
+      
+      rv$pct_change_table <- pct_change_react(pct_table)
+      
+      output$pct_change_five_msa <- renderDT({rv$pct_change_table}) 
+      
+      #pct growth by bedroom size
+      onebd_pct_table <- pct_change_val(onebd_five_year_growth_metro, user_input)
+      rv$onebd_pct_change_table <- pct_change_react(onebd_pct_table)
+      output$onebd_change_five_msa <- renderDT({rv$onebd_pct_change_table}) 
+      
+      twobd_pct_table <- pct_change_val(twobd_five_year_growth_metro, user_input)
+      rv$twobd_pct_change_table <- pct_change_react(twobd_pct_table)
+      output$twobd_change_five_msa <- renderDT({rv$twobd_pct_change_table}) 
+      
+      threebd_pct_table <- pct_change_val(threebd_five_year_growth_metro, user_input)
+      rv$threebd_pct_change_table <- pct_change_react(threebd_pct_table)
+      output$threebd_change_five_msa <- renderDT({rv$threebd_pct_change_table}) 
+      
+      fourbd_pct_table <- pct_change_val(fourbd_five_year_growth_metro, user_input)
+      rv$fourbd_pct_change_table <- pct_change_react(fourbd_pct_table)
+      output$fourbd_change_five_msa <- renderDT({rv$fourbd_pct_change_table}) 
+      
+      fivebd_pct_table <- pct_change_val(fivebd_five_year_growth_metro, user_input)
+      rv$fivebd_pct_change_table <- pct_change_react(fivebd_pct_table)
+      output$fivebd_change_five_msa <- renderDT({rv$fivebd_pct_change_table}) 
+      
+      ##table of avg pct growth
+      avg_table <- pct_change_avg(home_avg_five_metro, user_input)
+      rv$pct_avg_table <- pct_avg_react(avg_table)
+      output$pct_avg_table_msa <- renderDT({rv$pct_avg_table})
+      
+      #bedroom size avg pct growth
+      onebd_avg_table <- pct_change_avg(onebd_avg_growth_metro, user_input)
+      rv$onebd_pct_avg_table <- pct_avg_react(onebd_avg_table)
+      output$onebd_pct_avg_table_msa <- renderDT({rv$onebd_pct_avg_table})
+      
+      twobd_avg_table <- pct_change_avg(twobd_avg_growth_metro, user_input)
+      rv$twobd_pct_avg_table <- pct_avg_react(twobd_avg_table)
+      output$twobd_pct_avg_table_msa <- renderDT({rv$twobd_pct_avg_table})
+      
+      threebd_avg_table <- pct_change_avg(threebd_avg_growth_metro, user_input)
+      rv$threebd_pct_avg_table <- pct_avg_react(threebd_avg_table)
+      output$threebd_pct_avg_table_msa <- renderDT({rv$threebd_pct_avg_table})
+      
+      fourbd_avg_table <- pct_change_avg(fourbd_avg_growth_metro, user_input)
+      rv$fourbd_pct_avg_table <- pct_avg_react(fourbd_avg_table)
+      output$fourbd_pct_avg_table_msa <- renderDT({rv$fourbd_pct_avg_table})
+      
+      fivebd_avg_table <- pct_change_avg(fivebd_avg_growth_metro, user_input)
+      rv$fivebd_pct_avg_table <- pct_avg_react(fivebd_avg_table)
+      output$fivebd_pct_avg_table_msa <- renderDT({rv$fivebd_pct_avg_table})
+      
+    
+    #show tables
+    shinyjs::show("market_wrapper_msa")
+    shinyjs::show("first_date_wrapper_msa")
+    shinyjs::show("second_date_wrapper_msa")
+    shinyjs::show("third_date_wrapper_msa")
+    shinyjs::show("pct_change_wrapper_msa")
+    shinyjs::show("pct_avg_wrapper_msa")
+    
+  })#market search closer
+  
 ##----SUMMARY REPORT CENSUS DOWNLOAD---------------------------------------------------------
 #
 # Description: creates a HTML file that contains all the data
@@ -395,12 +608,29 @@ observeEvent(input$market_search_button, {
       #set up params to pass to Rmd Doc
       params <- list(place = rv$place,
                      zhvi = rv$zhvi,
+                     zhvi_onebd = rv$zhvi_onebd,
+                     zhvi_twobd = rv$zhvi_twobd,
+                     zhvi_threebd = rv$zhvi_threebd,
+                     zhvi_fourbd = rv$zhvi_fourbd,
+                     zhvi_fivebd = rv$zhvi_fivebd,
+                     
                      zfhg_one = rv$zfhg_one,
                      zfhg_two = rv$zfhg_two,
-                     zfhg_three = rv
-                     $zfhg_three,
+                     zfhg_three = rv$zfhg_three,
+                     
                      pct_five = rv$pct_change_table,
-                     pct_avg = rv$pct_avg_table
+                     onebd_pct_change_table = rv$onebd_pct_change_table,
+                     twobd_pct_change_table = rv$twobd_pct_change_table,
+                     threebd_pct_change_table = rv$threebd_pct_change_table,
+                     fourbd_pct_change_table = rv$fourbd_pct_change_table,
+                     fivebd_pct_change_table = rv$fivebd_pct_change_table,
+                     
+                     pct_avg = rv$pct_avg_table,
+                     onebd_pct_avg_table = rv$onebd_pct_avg_table,
+                     twobd_pct_avg_table = rv$twobd_pct_avg_table,
+                     threebd_pct_avg_table = rv$threebd_pct_avg_table,
+                     fourbd_pct_avg_table = rv$fourbd_pct_avg_table,
+                     fivebd_pct_avg_table = rv$fivebd_pct_avg_table
       )
       
       #knit doc
