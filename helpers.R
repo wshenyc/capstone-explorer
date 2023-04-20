@@ -433,3 +433,16 @@ pct_avg_react <- function(df) {
     formatString('pct_change', suffix = '%')
   
 }
+
+###data dict#####
+data_dict_gen <- function(df) {
+  DT::renderDT(
+    datatable(df, 
+              escape = FALSE,
+              colnames = c("Category", "Description", "Link"),
+              options = list(
+                dom = 'tp'
+    ) 
+  )
+  )
+}

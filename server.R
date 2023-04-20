@@ -132,6 +132,18 @@ source("load_data.R")
     
     output$pct_change_five <- renderDT({rv$pct_change_table}) 
     
+    shiny::withProgress(
+      message = paste0("Downloading data"),
+      value = 0,
+      {
+        shiny::incProgress(1/10)
+        Sys.sleep(0.5)
+        shiny::incProgress(5/10)
+        Sys.sleep(0.5)
+        shiny::incProgress(10/10)
+      }
+    )
+    
     #show tables
     shinyjs::show("race_wrapper")
     shinyjs::show("hhchar_wrapper")
@@ -148,6 +160,9 @@ source("load_data.R")
 # Description: filters drop down menu & searches by place 
 #____________________________________________________________________________
 output$city_entry <- renderUI({
+  
+  
+  
   city_choices <- city_state_list %>% 
     filter(State == input$state_entry)
   
@@ -250,6 +265,20 @@ output$city_entry <- renderUI({
     rent_own_table <- rent_own_report(rent_own_place, user_input, state_input)
     rv$rent_own <- rent_own_react(rent_own_table)
     
+    shiny::withProgress(
+      message = paste0("Downloading data"),
+      value = 0,
+      {
+        shiny::incProgress(1/10)
+        Sys.sleep(0.5)
+        shiny::incProgress(5/10)
+        Sys.sleep(0.5)
+        shiny::incProgress(10/10)
+      }
+    )
+    
+    
+    
     #show tables
     shinyjs::show("race_wrapper_place")
     shinyjs::show("hhchar_wrapper_place")
@@ -341,9 +370,9 @@ observeEvent(input$market_search_button, {
       })
       
       ##react vals of future growth
-      rv$zfhg_one <- date_growth(growth_home, user_input, "2023-02-28")
-      rv$zfhg_two <- date_growth(growth_home, user_input, "2023-04-30")
-      rv$zfhg_three <- date_growth(growth_home, user_input, "2024-01-31")
+      rv$zfhg_one <- date_growth(growth_home, user_input, "2023-04-30")
+      rv$zfhg_two <- date_growth(growth_home, user_input, "2023-06-30")
+      rv$zfhg_three <- date_growth(growth_home, user_input, "2024-03-31")
       
       ##table of pct growth 
       pct_table <- pct_change_val(home_val_five, user_input)
@@ -400,6 +429,18 @@ observeEvent(input$market_search_button, {
       output$fivebd_pct_avg_table <- renderDT({rv$fivebd_pct_avg_table})
 
     }#validation result
+    
+    shiny::withProgress(
+      message = paste0("Downloading data"),
+      value = 0,
+      {
+        shiny::incProgress(1/10)
+        Sys.sleep(0.5)
+        shiny::incProgress(5/10)
+        Sys.sleep(0.5)
+        shiny::incProgress(10/10)
+      }
+    )
     
     #show tables
     shinyjs::show("market_wrapper")
@@ -491,9 +532,9 @@ observeEvent(input$market_search_button, {
       })
       
       ##react vals of future growth
-      rv$zfhg_one <- date_growth(growth_metro, user_input, "2023-02-28")
-      rv$zfhg_two <- date_growth(growth_metro, user_input, "2023-04-30")
-      rv$zfhg_three <- date_growth(growth_metro, user_input, "2024-01-31")
+      rv$zfhg_one <- date_growth(growth_metro, user_input, "2023-04-30")
+      rv$zfhg_two <- date_growth(growth_metro, user_input, "2023-06-30")
+      rv$zfhg_three <- date_growth(growth_metro, user_input, "2024-03-31")
       
       ##table of pct growth 
       pct_table <- pct_change_val(home_val_five_metro, user_input)
@@ -549,7 +590,18 @@ observeEvent(input$market_search_button, {
       rv$fivebd_pct_avg_table <- pct_avg_react(fivebd_avg_table)
       output$fivebd_pct_avg_table_msa <- renderDT({rv$fivebd_pct_avg_table})
       
-    
+      shiny::withProgress(
+        message = paste0("Downloading data"),
+        value = 0,
+        {
+          shiny::incProgress(1/10)
+          Sys.sleep(0.5)
+          shiny::incProgress(5/10)
+          Sys.sleep(0.5)
+          shiny::incProgress(10/10)
+        }
+      )
+      
     #show tables
     shinyjs::show("market_wrapper_msa")
     shinyjs::show("first_date_wrapper_msa")
@@ -570,6 +622,16 @@ observeEvent(input$market_search_button, {
       paste("Summary Report ", rv$place,".html", sep="")
     },
     content = function(file) {
+      shiny::withProgress(
+        message = paste0("Downloading summary report"),
+        value = 0,
+        {
+          shiny::incProgress(1/10)
+          Sys.sleep(0.5)
+          shiny::incProgress(5/10)
+          Sys.sleep(0.5)
+          shiny::incProgress(10/10)
+       
       tempReport <- file.path(tempdir(), "Report.Rmd")
       file.copy("Report.Rmd", tempReport, overwrite = TRUE)
       
@@ -588,7 +650,8 @@ observeEvent(input$market_search_button, {
       rmarkdown::render(tempReport, output_file = file,
                         params = params,
                         envir = new.env(parent=globalenv()))
-      
+       
+        })
       
     })
   
@@ -598,10 +661,21 @@ observeEvent(input$market_search_button, {
 #____________________________________________________________________________
   
   output$downloadReportMarket <- downloadHandler(
+    
     filename = function(){
       paste("Summary Report ", rv$place,".html", sep="")
     },
     content = function(file) {
+      shiny::withProgress(
+        message = paste0("Downloading summary report"),
+        value = 0,
+        {
+          shiny::incProgress(1/10)
+          Sys.sleep(0.5)
+          shiny::incProgress(5/10)
+          Sys.sleep(0.5)
+          shiny::incProgress(10/10)
+          
       tempReport <- file.path(tempdir(), "Report - Market.Rmd")
       file.copy("Report - Market.Rmd", tempReport, overwrite = TRUE)
       
@@ -638,9 +712,22 @@ observeEvent(input$market_search_button, {
                         params = params,
                         envir = new.env(parent=globalenv()))
       
-      
+        })
     })
   
+##----DATA DICTIONARY---------------------------------------------------------
+#
+# Description: opens the data dictionary
+#____________________________________________________________________________
+  
+  observeEvent(input$infoBtn, {
+    showModal(
+      modalDialog(title = "Data Dictionary",
+                  data_dict_gen(data_dict_file)
+    ))
+   
+    
+  })
    
   
 } # server closer

@@ -89,3 +89,5 @@ fivebd_avg_growth_metro <-  read_feather("fivebd_avg_growth_metro.feather")
 #zhvf
 growth_metro <- read_feather("growth_metro.feather")
 
+#data dict
+data_dict_file <- read_csv("datadict.csv")

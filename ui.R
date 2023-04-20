@@ -632,31 +632,29 @@ body <- dashboardBody(
 
    
     ###HTA TAB####
-    tabItem(tabName = "hta_tab",
-            fluidRow(
-              column(12,
-                     shinyjs::hidden(
-                     div(
-                       id = "hta_lookup",
-                       shinydashboard::box(
-                         width = NULL,
-                         title = "H+T Affordability Index",
-                         status = "primary",
-                         div(
-                           tags$iframe(
-                             src = "https://htaindex.cnt.org/map/",
-                             height = "800px", width = "100%"
-                           )
+  tabItem(tabName = "hta_tab",
+          fluidRow(
+            column(12,
+                   #shinyjs::hidden(
+                   div(
+                     id = "hta_look_up",
+                     shinydashboard::box(
+                       width = NULL,
+                       title = "H+T Affordability Index",
+                       status = "primary",
+                       div(
+                         tags$iframe(
+                           src = "https://htaindex.cnt.org/map/",
+                           height = "800px", width = "100%"
                          )
                        )
                      )
-                     )#shinyjs
-              )
-            )#fluidrow closer
-            
-    ),#tabitem closer
-    
-  
+                   )
+                   #)#shinyjs
+            )
+          )#fluidrow closer
+          
+  ),#tabitem closer
 
 
     ###POLITICAL SEARCH####
@@ -787,7 +785,10 @@ dashboardPage(
   title = "CLT Assessment Tool",
   header = dashboardHeader(title = tags$a(href="https://groundedsolutions.org/",
                                           tags$img(src='https://groundedsolutions.org/themes/custom/groundwork/patternlab/public/images/grounded-solutions-network-logo-white.svg',
-                                                   height = '40px'))),
+                                                   height = '40px')),
+                           tags$li(actionLink("infoBtn", label = "", icon = icon("info")),
+                                   class = "dropdown")
+                           ),
   sidebar,
   body
 )
