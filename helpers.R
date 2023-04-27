@@ -6,8 +6,6 @@ library(DT)
 "%notin%" <- Negate("%in%")
 
 
-#####actual functions####
-
 ####zipcode validation function####
 
 validateRequiredInput <- function(inputData) {
@@ -52,8 +50,8 @@ geo_select <- function(df, x, y) {
 ####Household Characteristics#### 
 
 
-hhchar_table_gen <- function(df, user_zip, chosen_state, cat) {
-  x <- geo_select(df, user_zip, chosen_state) %>% 
+hhchar_table_gen <- function(df, user_geo, chosen_state, cat) {
+  x <- geo_select(df, user_geo, chosen_state) %>% 
     filter(category == cat)
   
   DT::renderDT(
@@ -72,9 +70,9 @@ hhchar_table_gen <- function(df, user_zip, chosen_state, cat) {
 
 
 ####hh char react versions####
-hhchar_table_report <- function(df, user_zip,chosen_state) {
+hhchar_table_report <- function(df, user_geo,chosen_state) {
 
-  x <-   geo_select(df, user_zip,chosen_state) #testing if I can get away with just changing geo_select
+  x <-   geo_select(df, user_geo,chosen_state) #testing if I can get away with just changing geo_select
 }
 
 hhchar_react_report <- function(df) {
@@ -92,9 +90,9 @@ hhchar_react_report <- function(df) {
 
 ####Race and Ethnicity####
 
-race_table_gen <- function(df, user_zip,chosen_state) {
+race_table_gen <- function(df, user_geo,chosen_state) {
   
-  x <- geo_select(df, user_zip,chosen_state) %>%  #testing
+  x <- geo_select(df, user_geo,chosen_state) %>%  #testing
     mutate(Estimate = as.numeric(str_replace_all(Estimate, "[[:punct:]]", ""))) 
     
   plot <- 
@@ -121,8 +119,8 @@ renderEcharts4r({
 }
 
 ##react race/eth###
-race_table_report <- function(df, user_zip,chosen_state) {
-  x <-   geo_select(df, user_zip,chosen_state) %>%  #testing
+race_table_report <- function(df, user_geo,chosen_state) {
+  x <-   geo_select(df, user_geo,chosen_state) %>%  #testing
     mutate(Estimate = as.numeric(str_replace_all(Estimate, "[[:punct:]]", ""))) 
 }
 
@@ -146,8 +144,8 @@ race_table_react <- function(df) {
 
 
 ####Income ####
-income_table_gen <- function(df, user_zip,chosen_state) {
-  x <- geo_select(df, user_zip,chosen_state)
+income_table_gen <- function(df, user_geo,chosen_state) {
+  x <- geo_select(df, user_geo,chosen_state)
   
   plot <- x %>% 
     e_charts(Label) %>% 
@@ -169,9 +167,9 @@ income_table_gen <- function(df, user_zip,chosen_state) {
 }
 
 ###react income bands
-income_table_report <- function(df, user_zip,chosen_state) {
+income_table_report <- function(df, user_geo,chosen_state) {
   
-  x <-   geo_select(df, user_zip,chosen_state) 
+  x <-   geo_select(df, user_geo,chosen_state) 
 }
 
 income_react_report <- function(df) {
@@ -191,8 +189,8 @@ income_react_report <- function(df) {
 
 
 ####Income by Race####
-inc_race_gen <- function(df, user_zip,chosen_state) {
-  x <- geo_select(df, user_zip,chosen_state) %>% 
+inc_race_gen <- function(df, user_geo,chosen_state) {
+  x <- geo_select(df, user_geo,chosen_state) %>% 
     rename(Asian = estimate_asian,
            Black = estimate_black,
            Hispanic = estimate_his,
@@ -221,8 +219,8 @@ inc_race_gen <- function(df, user_zip,chosen_state) {
 }
 
 ###react income by race###
-inc_race_report <- function(df, user_zip,chosen_state) {
-  x <- geo_select(df, user_zip,chosen_state) %>% 
+inc_race_report <- function(df, user_geo,chosen_state) {
+  x <- geo_select(df, user_geo,chosen_state) %>% 
     rename(Asian = estimate_asian,
            Black = estimate_black,
            Hispanic = estimate_his,
@@ -249,8 +247,8 @@ inc_race_react <- function(df){
 
 
 ####Renter/Owner by Race####
-rent_own_gen <- function(df, user_zip, chosen_state) {
-  x <- geo_select(df, user_zip, chosen_state) 
+rent_own_gen <- function(df, user_geo, chosen_state) {
+  x <- geo_select(df, user_geo, chosen_state) 
   
   DT::renderDT({
     datatable(x,
@@ -266,8 +264,8 @@ rent_own_gen <- function(df, user_zip, chosen_state) {
 }
 
 ###react renter/owner###
-rent_own_report <- function(df, user_zip, chosen_state) {
-  x <- geo_select(df, user_zip, chosen_state) 
+rent_own_report <- function(df, user_geo, chosen_state) {
+  x <- geo_select(df, user_geo, chosen_state) 
 }
 
 rent_own_react <- function(df){
@@ -283,8 +281,8 @@ rent_own_react <- function(df){
 }
 
 ####Median Income####
-income_med_gen <- function(df, user_zip,chosen_state) {
-  x <- geo_select(df, user_zip,chosen_state) %>% 
+income_med_gen <- function(df, user_geo,chosen_state) {
+  x <- geo_select(df, user_geo,chosen_state) %>% 
     filter(!grepl("Total",Label))
   
   med_income <- x %>% 
@@ -297,8 +295,8 @@ income_med_gen <- function(df, user_zip,chosen_state) {
 }
 
 #####Avg Income####
-income_avg_gen <- function(df, user_zip,chosen_state) {
-  x <- geo_select(df, user_zip,chosen_state) %>% 
+income_avg_gen <- function(df, user_geo,chosen_state) {
+  x <- geo_select(df, user_geo,chosen_state) %>% 
     filter(!grepl("Total",Label))
   
   avg_income <- x %>% 
@@ -312,17 +310,17 @@ income_avg_gen <- function(df, user_zip,chosen_state) {
 
 
 ####Home value trends####
-val_table_gen <- function(df, user_zip) {
+val_table_gen <- function(df, user_geo) {
   if("State" %in% colnames(df)) {
     x <- df %>% 
-      filter(RegionName == user_zip) %>% 
+      filter(RegionName == user_geo) %>% 
       select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
       pivot_longer(cols = starts_with("20"),
                    names_to = "date",
                    values_to = "Value") 
   } else {
     x <- df %>% 
-      filter(RegionName == user_zip) %>% 
+      filter(RegionName == user_geo) %>% 
       select(-c(RegionID, SizeRank, RegionType, StateName)) %>% 
       pivot_longer(cols = starts_with("20"),
                    names_to = "date",
@@ -344,17 +342,17 @@ val_table_gen <- function(df, user_zip) {
 }
 
 ##react zillow home value
-val_table_report <- function(df, user_zip) {
+val_table_report <- function(df, user_geo) {
   if("State" %in% colnames(df)) {
     x <- df %>% 
-      filter(RegionName == user_zip) %>% 
+      filter(RegionName == user_geo) %>% 
       select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
       pivot_longer(cols = starts_with("20"),
                    names_to = "date",
                    values_to = "Value") 
   } else {
     x <- df %>% 
-      filter(RegionName == user_zip) %>% 
+      filter(RegionName == user_geo) %>% 
       select(-c(RegionID, SizeRank, RegionType, StateName)) %>% 
       pivot_longer(cols = starts_with("20"),
                    names_to = "date",
@@ -374,17 +372,17 @@ val_react_report <- function(df) {
 }
 
 ####home value growth####
-date_growth <- function(df, user_zip, date_val) {
+date_growth <- function(df, user_geo, date_val) {
   if("State" %in% colnames(df)) {
     x <- df %>% 
-      filter(RegionName == user_zip) %>% 
+      filter(RegionName == user_geo) %>% 
       select(-c(RegionName, RegionID, SizeRank, RegionType, StateName, State, City, Metro, CountyName)) %>% 
       pivot_longer(cols = starts_with("20"),
                    names_to = "date",
                    values_to = "Growth") 
   } else {
     x <- df %>% 
-      filter(RegionName == user_zip) %>% 
+      filter(RegionName == user_geo) %>% 
       select(-c(RegionID, SizeRank, RegionType, StateName)) %>% 
       pivot_longer(cols = starts_with("20"),
                    names_to = "date",
@@ -398,9 +396,9 @@ date_growth <- function(df, user_zip, date_val) {
 }
 
 ####home val pct change####
-pct_change_val <- function(df, user_zip) {
+pct_change_val <- function(df, user_geo) {
   x <- df %>% 
-    filter(RegionName == user_zip) %>% 
+    filter(RegionName == user_geo) %>% 
     select(date, pct_change)
 }
 
@@ -417,9 +415,9 @@ pct_change_react <- function(df) {
 }
 
 ####home val avg pct change####
-pct_change_avg <- function(df, user_zip) {
+pct_change_avg <- function(df, user_geo) {
   x <- df %>% 
-    filter(RegionName == user_zip) %>% 
+    filter(RegionName == user_geo) %>% 
     select(year_range, pct_change)
 }
 

@@ -13,7 +13,6 @@ params:
   zhvi_fourbd: NA
   zhvi_fivebd: NA 
               
-  zfhg_one: NA
   zfhg_two: NA
   zfhg_three: NA
   
@@ -134,11 +133,6 @@ params$fivebd_pct_avg_table
 
 
 ### Zillow Forecasted Value Growth for All Home Types
-Feb 28, 2023 forecasted growth: 
-```{r,echo=FALSE}
-params$zfhg_one
-```
-
 Apr 30, 2023 forecasted growth:
 ```{r,echo=FALSE}
 params$zfhg_two

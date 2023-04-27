@@ -2,12 +2,13 @@ library(tidycensus)
 library(tidyverse)
 library(feather)
 
+#Purpose: Pre-process ACS 2017-2021 data for display on the dashboard, 
+#files are saved as feather.types 
+
+#Request a Census API key# 
+#https://api.census.gov/data/key_signup.html 
 
 "%notin%" <- Negate("%in%")
-
-#Purpose: Pre-process ACS 2017-2021 data for race & ethnicity, median household income,
-
-#census_api_key("0cb3ea8ea0c4a8cdd2bdbb55582d9c1e400093bc", install = T)
 
 
 ####Median Household Income#####
@@ -29,7 +30,7 @@ vars_medinc <- vars %>%
 income_table <- get_acs(
   geography = "zcta",
   table = "S1901", #median household income 
-  year = 2021 #2017-2021 is the most recent 5-year ACS, I'm not crazy lol 
+  year = 2021 #2017-2021 
 )
 
 income_bands_full <- income_table %>% 
@@ -45,12 +46,6 @@ income_bands_full <- income_table %>%
          Estimate = estimate,
          Zipcode = GEOID) 
   
-
-  
-
-#writing to csv 
-#income_bands_full %>% write_csv("acs_income_bands_2017_2021.csv")
-  
 med_mean_income <- income_table %>% 
   filter(grepl("S1901_C01_001", variable) |
            grepl("S1901_C01_012", variable) |
@@ -61,17 +56,13 @@ med_mean_income <- income_table %>%
          Estimate = estimate,
          Zipcode = GEOID)
 
-#med_mean_income %>% write_csv("med_mean_income_acs_2017_2021.csv")
-
 ####med income place#####
 income_table_place <- get_acs(
   geography = "place",
   table = "S1901", #median household income 
-  year = 2021 #2017-2021 is the most recent 5-year ACS, I'm not crazy lol 
+  year = 2021 #2017-2021 
 )
 
-
-#I should probably do filter by state then place I guess? 
 
 income_bands_full_place <- income_table_place %>% 
   filter(grepl("S1901_C01", variable)) %>% 
@@ -90,7 +81,6 @@ income_bands_place_clean <- income_bands_full_place %>%
   mutate(State = if_else(!is.na(`Extra State`), `Extra State`, State)) %>% 
   select(-c(`Extra State`))
 
-#income_bands_place_clean %>% write_csv("income_bands_place.csv")
 
 ###med/avg income by place####
 med_mean_income_place <- income_table_place %>% 
@@ -107,7 +97,6 @@ med_mean_income_place <- income_table_place %>%
 
 
 ####household income by race/ethnicity####
-#this is going to take more time than I anticipated lol
 
 vars_inc_rr <- load_variables(
   2021,
@@ -277,10 +266,6 @@ master_inc_race_place <- inc_rr_b_formatted_place %>%
 # H white alone, not hispanic or latino
 # I hispanic or latino 
 
-###doing percentages instead
-
-
-
 
 ####household characteristics####
 vars_dp  <- load_variables(
@@ -343,9 +328,6 @@ hh_char_formatted <- hh_char_labelled %>%
   select(GEOID, desc, category, Estimate, Percentage) %>%
   rename(Zipcode = GEOID,
          Label = desc) 
-
-
-#hh_char_formatted %>% write_csv("hh_char_acs_2017_2021.csv")
 
 
 ###hh char by place####
@@ -443,8 +425,6 @@ race_table_labelled <- race_table %>%
   select(Zipcode, Label, Estimate, Percentage)
   
 
-#race_table_labelled %>% write_csv("race_table_acs_2017_2021.csv")
-
 ###race eth by place#####
 race_table_place <- get_acs(
   geography = "place",
@@ -498,7 +478,7 @@ vars_rent <- vars %>%
 dem_table <- get_acs(
   geography = "zcta",
   table = "S2502", #median household income 
-  year = 2021 #2017-2021 is the most recent 5-year ACS, I'm not crazy lol 
+  year = 2021 #2017-2021 
 )
 
 dem_table_labelled <- dem_table %>% 
@@ -515,7 +495,7 @@ dem_table_labelled <- dem_table %>%
 dem_table_place <- get_acs(
   geography = "place",
   table = "S2502", #median household income 
-  year = 2021 #2017-2021 is the most recent 5-year ACS, I'm not crazy lol 
+  year = 2021 #2017-2021
 )
 
 dem_table_labelled_place <- dem_table_place %>% 
@@ -530,11 +510,6 @@ dem_table_labelled_place <- dem_table_place %>%
   select(-c(`Extra State`))
 
 ####Feathers####
-# income_bands <- read_csv("acs_income_bands_2017_2021.csv")
-# med_mean_income <- read_csv("med_mean_income_acs_2017_2021.csv")
-#race_eth <- read_csv("race_table_acs_2017_2021.csv")
-# hh_char <- read_csv("hh_char_acs_2017_2021.csv")
-
 #write_feather(income_bands, "income_bands.feather")
 #write_feather(med_mean_income, "med_mean_income.feather")
 

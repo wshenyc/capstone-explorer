@@ -214,10 +214,6 @@ sidebar <- dashboardSidebar(
                   tabName = "census_sub_tab",
                   actionButton("zip_search_button", "Zip Search")), 
       
-      # menuSubItem(icon = NULL,
-      #             tabName = "market_tab",
-      #             actionButton("market_search_button", "Zip Home Value Search")),
-      
       menuSubItem(icon = NULL,
                   selectInput("state_entry",
                               "Select a U.S. State",
@@ -273,10 +269,7 @@ sidebar <- dashboardSidebar(
       "Political Landscape",
       tabName = "political_search",
       icon = icon("landmark")
-      
-      # menuSubItem("Electeds Look Up",
-      #             icon = icon("check-double"),
-      #             tabName="pol_lookup_tab")
+
     ), 
     
     
@@ -330,7 +323,6 @@ body <- dashboardBody(
                                           id = "race_wrapper",
                                           shinydashboard::box(
                                             width = NULL,
-                                            #height = "40em",
                                             title = p("Race/Ethnicity", style = 'font-size:18px;'),
                                             footer = p("Source: 2017-2021 ACS B03002", 
                                                        style = 'font-size:11px; color: gray; font-style: italic;'),
@@ -346,8 +338,6 @@ body <- dashboardBody(
                                           id = "hhchar_wrapper",
                                           shinydashboard::tabBox(
                                             width = NULL,
-                                            #height = "40em",
-                                            #title = p("Household Characteristics", style = 'font-size:18px;'),
                                             id = "hhchar_tab",
                                             footer = p("Source: 2017-2021 ACS DP04", 
                                                        style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
@@ -369,9 +359,7 @@ body <- dashboardBody(
                                  id = "income_band_wrapper",
                                  shinydashboard::tabBox(
                                    width = NULL,
-                                   #title = p("Breakdown of Households by Income Bands", style = 'font-size:18px;'),
                                    footer = p("Source: 2017-2021 ACS S1901, B19001B/D/H/I, S2502", style = 'font-size:11px; color: gray; font-style: italic; margin: 20px'),
-                                   #status = "primary",
                                    tabPanel("Breakdown of All Households by Income Bands", echarts4rOutput('income_band_table')),
                                    tabPanel("Breakdown of Households by Income Bands and Race", echarts4rOutput('race_income_table')),
                                    tabPanel("Breakdown of Renters/Owners by Race", DTOutput('rent_own_table'))
@@ -380,7 +368,7 @@ body <- dashboardBody(
                                )
                              )
                              ) #column
-                      )#fluidrow closer #extra comma? 
+                      )#fluidrow closer
 
                    ), #tab item closer
     
@@ -397,7 +385,6 @@ body <- dashboardBody(
                               id = "race_wrapper_place",
                               shinydashboard::box(
                                 width = NULL,
-                                #height = "40em",
                                 title = p("Race/Ethnicity", style = 'font-size:18px;'),
                                 footer = p("Source: 2017-2021 ACS B03002", 
                                            style = 'font-size:11px; color: gray; font-style: italic;'),
@@ -413,8 +400,6 @@ body <- dashboardBody(
                               id = "hhchar_wrapper_place",
                               shinydashboard::tabBox(
                                 width = NULL,
-                                #height = "40em",
-                                #title = p("Household Characteristics", style = 'font-size:18px;'),
                                 id = "hhchar_tab",
                                 footer = p("Source: 2017-2021 ACS DP04", 
                                            style = 'font-size:11px; color: gray; font-style: italic; margin: 20px;'),
@@ -436,9 +421,7 @@ body <- dashboardBody(
                        id = "income_band_wrapper_place",
                        shinydashboard::tabBox(
                          width = NULL,
-                         #title = p("Breakdown of Households by Income Bands", style = 'font-size:18px;'),
                          footer = p("Source: 2017-2021 ACS S1901, B19001B/D/H/I, S2502", style = 'font-size:11px; color: gray; font-style: italic; margin: 20px'),
-                         #status = "primary",
                          tabPanel("Breakdown of All Households by Income Bands", echarts4rOutput('income_band_table_place')),
                          tabPanel("Breakdown of Households by Income Bands and Race", echarts4rOutput('race_income_table_place')),
                          tabPanel("Breakdown of Renters/Owners by Race", DTOutput('rent_own_table_place'))
@@ -447,7 +430,7 @@ body <- dashboardBody(
                      )
                    )
             ) #column
-          )#fluidrow closer #extra comma? 
+          )#fluidrow closer 
           
   ), #tab item closer
   
@@ -473,35 +456,15 @@ body <- dashboardBody(
               )
             ),#fluidrow closer
             fluidRow(
-              column(4,
-                     shinyjs::hidden(
-                       div(
-                         id = "first_date_wrapper",
-                         valueBoxOutput("first_date_box", width = 12)
-                       )
-                     )),
-              
-              column(4,
-                     shinyjs::hidden(
-                       div(
-                         id = "second_date_wrapper",
-                         valueBoxOutput("second_date_box", width = 12)
-                       )
-                     )),
-              
-              column(4,
-                     shinyjs::hidden(
-                       div(
-                         id = "third_date_wrapper",
-                         valueBoxOutput("third_date_box", width = 12)
-                       )
-                     ))
-            ),#fluidrow closer
-            
+              infoBoxOutput("geoBox_zillow"), 
+              valueBoxOutput("second_date_box"), 
+              valueBoxOutput("third_date_box")
+            ),
+
             fluidRow(
               
               column(6,
-                     #shinyjs::hidden(
+                     shinyjs::hidden(
                        div(
                          id = "pct_change_wrapper",
                          shinydashboard::tabBox( 
@@ -516,7 +479,7 @@ body <- dashboardBody(
                         tabPanel("Five Bedrooms", DTOutput("fivebd_change_five"))
                         ) 
                        )
-                     #)#shinyjs closer
+                     )#shinyjs closer
                      ),
               
               column(6,
@@ -562,35 +525,15 @@ body <- dashboardBody(
               )
             ), #fluidrow closer
             fluidRow(
-              column(4,
-                     shinyjs::hidden(
-                       div(
-                         id = "first_date_wrapper_msa",
-                         valueBoxOutput("first_date_box_msa", width = 12)
-                       )
-                     )),
-
-              column(4,
-                     shinyjs::hidden(
-                       div(
-                         id = "second_date_wrapper_msa",
-                         valueBoxOutput("second_date_box_msa", width = 12)
-                       )
-                     )),
-
-              column(4,
-                     shinyjs::hidden(
-                       div(
-                         id = "third_date_wrapper_msa",
-                         valueBoxOutput("third_date_box_msa", width = 12)
-                       )
-                     ))
-            ),#fluidrow closer
-
+              infoBoxOutput("geoBox_zillow_msa"),
+              valueBoxOutput("second_date_box_msa"),
+              valueBoxOutput("third_date_box_msa")
+              ), 
+              
             fluidRow(
 
               column(6,
-                     #shinyjs::hidden(
+                     shinyjs::hidden(
                      div(
                        id = "pct_change_wrapper_msa",
                        shinydashboard::tabBox(
@@ -605,7 +548,7 @@ body <- dashboardBody(
                          tabPanel("Five Bedrooms", DTOutput("fivebd_change_five_msa"))
                        )
                      )
-                     #)#shinyjs closer
+                     )#shinyjs closer
               ),
 
               column(6,
