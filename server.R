@@ -752,13 +752,17 @@ observeEvent(input$market_search_button, {
   
   observeEvent(input$infoBtn, {
     showModal(
-      modalDialog(title = "Data Dictionary",
-                  data_dict_gen(data_dict_file)
-    ))
-   
+      modalDialog(title = NULL,
+                  tags$h4("Data Dictionary"), 
+                  data_dict_gen(data_dict_file),
+                  tags$h4("Link to Github:", tags$a(href = 'https://github.com/wshenyc/capstone-explorer',
+                                                    target="_blank", "Here")),
+    )
+    )
     
   })
-   
-  
+
+
+ 
 } # server closer
 
